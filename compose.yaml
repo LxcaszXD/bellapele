@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root_local_change_me
+      MYSQL_DATABASE: bellapelle_modelo
+      MYSQL_USER: bellapelle
+      MYSQL_PASSWORD: bellapelle_local
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql_modelo_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/002-api.sql:/docker-entrypoint-initdb.d/02-api.sql:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  app:
+    build: .
+    environment:
+      DATA_MODE: mysql
+      DATABASE_URL: mysql://bellapelle:bellapelle_local@mysql:3306/bellapelle_modelo
+      COOKIE_SECURE: "false"
+      ENABLE_LOCAL_DEMO_AUTH: "true"
+      LOCAL_DEMO_CLIENT_ID: "1"
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+volumes:
+  mysql_modelo_data:
