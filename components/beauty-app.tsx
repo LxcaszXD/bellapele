@@ -23,7 +23,6 @@ import {
   endTime,
   isPast,
   money,
-  slots,
   today,
   Treatment,
   treatments as initialTreatments,
@@ -37,8 +36,8 @@ type Screen =
   | "success"
   | "bookings";
 const storeKey = "bellapelle-demo-v1";
-export default function BeautyApp() {
-  const [customerName, setCustomerName] = useState("Amanda");
+export default function BeautyApp({ csrfToken }: { csrfToken: string }) {
+  const [customerName, setCustomerName] = useState("");
   const [screen, setScreen] = useState<Screen>("home");
   const [catalog, setCatalog] = useState(initialTreatments);
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -54,8 +53,18 @@ export default function BeautyApp() {
   const [sort, setSort] = useState("relevance");
   const [date, setDate] = useState(availableDate);
   const [time, setTime] = useState("11:00");
+  const [packages, setPackages] = useState<
+    {
+      id_pacote_cliente: number;
+      id_procedimento: number;
+      nome: string;
+      sessoes_restantes: number;
+      data_validade: string;
+    }[]
+  >([]);
+  const [packageId, setPackageId] = useState("");
   const [payment, setPayment] = useState<Booking["payment"]>("Pix");
-  const [available, setAvailable] = useState<string[]>(slots);
+  const [available, setAvailable] = useState<string[]>([]);
   const [tab, setTab] = useState("Próximos");
   const [editing, setEditing] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<Booking | null>(null);
@@ -77,9 +86,12 @@ export default function BeautyApp() {
       }
     : catalogTreatment;
   async function api(path: string, method = "GET", body?: unknown) {
-    const r = await fetch("/api/" + path, {
+    const r = await fetch("/api/customer/" + path, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken,
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const data = await r.json();
@@ -93,18 +105,10 @@ export default function BeautyApp() {
       setCatalog(data.treatments);
       if (data.customer?.name)
         setCustomerName(data.customer.name.split(" ")[0]);
-      if (data.mode === "demo") {
-        try {
-          const saved = JSON.parse(localStorage.getItem(storeKey) ?? "{}");
-          setFavorites(Array.isArray(saved.favorites) ? saved.favorites : []);
-          setBookings(Array.isArray(saved.bookings) ? saved.bookings : []);
-        } catch {
-          localStorage.removeItem(storeKey);
-        }
-      } else {
-        setFavorites(data.favorites);
-        setBookings(data.bookings);
-      }
+      setFavorites(data.favorites);
+      setBookings(data.bookings);
+      const account = await api("account");
+      setPackages(account.packages);
       setError("");
     } catch (e) {
       setMode("error");
@@ -137,10 +141,6 @@ export default function BeautyApp() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
   useEffect(() => {
-    if (mode === "demo")
-      localStorage.setItem(storeKey, JSON.stringify({ favorites, bookings }));
-  }, [favorites, bookings, mode]);
-  useEffect(() => {
     if (!["detail", "checkout"].includes(screen)) return;
     let active = true;
     setAvailable([]);
@@ -152,20 +152,6 @@ export default function BeautyApp() {
         .catch((e) => {
           if (active) setError(e.message);
         });
-    } else if (mode === "demo") {
-      setAvailable(
-        slots.filter(
-          (s) =>
-            !isPast(date, s) &&
-            !bookings.some(
-              (b) =>
-                b.id !== editing &&
-                b.date === date &&
-                b.time === s &&
-                b.status === "confirmed",
-            ),
-        ),
-      );
     }
     return () => {
       active = false;
@@ -180,6 +166,7 @@ export default function BeautyApp() {
   }
   function openTreatment(id: number) {
     setEditing(null);
+    setPackageId("");
     setDate(availableDate());
     setTime("11:00");
     go("detail", id);
@@ -202,7 +189,13 @@ export default function BeautyApp() {
   async function confirm() {
     if (busy) return;
     setError("");
-    const data = { treatmentId: selected, date, time, payment };
+    const data = {
+      treatmentId: treatment.id,
+      date,
+      time,
+      payment,
+      packageId: packageId ? Number(packageId) : null,
+    };
     const validation = bookingSchema.safeParse(data);
     if (!validation.success) {
       setError(validation.error.issues[0].message);
@@ -221,14 +214,6 @@ export default function BeautyApp() {
           editing ? "PATCH" : "POST",
           data,
         );
-      else if (mode === "demo")
-        result = {
-          ...data,
-          id: editing ?? crypto.randomUUID(),
-          status: "confirmed",
-          price: treatment.price,
-          duration: treatment.duration,
-        };
       else throw new Error("Aguarde a conexão com os dados.");
       setBookings((b) => [...b.filter((x) => x.id !== result.id), result]);
       setConfirmed(result);
@@ -397,6 +382,26 @@ export default function BeautyApp() {
       ? "Concluído"
       : "Confirmado";
   }
+  if (mode === "loading")
+    return (
+      <main className="portal-auth" role="status">
+        Carregando seus cuidados…
+      </main>
+    );
+  if (mode === "error")
+    return (
+      <main className="portal-auth">
+        <p role="alert">{error}</p>
+        <button onClick={load}>Tentar novamente</button>
+      </main>
+    );
+  if (!catalog.length)
+    return (
+      <main className="portal-auth">
+        <h1>Bem-vinda, {customerName}</h1>
+        <p>A clínica ainda não publicou procedimentos.</p>
+      </main>
+    );
   const showNav = ["home", "favorites", "bookings"].includes(screen);
   return (
     <div className={`app screen-${screen}`}>
@@ -459,12 +464,6 @@ export default function BeautyApp() {
           <button aria-label="Fechar aviso" onClick={() => setError("")}>
             <X size={18} />
           </button>
-          {mode === "error" && <button onClick={load}>Tentar novamente</button>}
-        </div>
-      )}
-      {mode === "loading" && (
-        <div role="status" className="loading-bar">
-          Carregando seus cuidados…
         </div>
       )}
       {screen === "home" && (
@@ -487,7 +486,7 @@ export default function BeautyApp() {
               aria-label="Meu perfil"
               onClick={() => go("bookings")}
             >
-              AM
+              {customerName.slice(0, 2).toUpperCase()}
             </button>
           </header>
           <button
@@ -795,7 +794,7 @@ export default function BeautyApp() {
                 {dateLabel(date)} · Alterar data
               </button>
               <div className="time-grid">
-                {slots.map((s) => (
+                {available.map((s) => (
                   <button
                     disabled={!available.includes(s)}
                     className={time === s ? "active" : ""}
@@ -859,6 +858,37 @@ export default function BeautyApp() {
           </section>
           <section className="checkout-payment">
             <h2>Pagamento</h2>
+            {!editing && (
+              <label>
+                Usar pacote
+                <select
+                  value={packageId}
+                  onChange={(e) => setPackageId(e.target.value)}
+                >
+                  <option value="">Sessão avulsa</option>
+                  {packages
+                    .filter(
+                      (p) =>
+                        p.id_procedimento === treatment.id &&
+                        p.sessoes_restantes > 0 &&
+                        p.data_validade >= today(),
+                    )
+                    .map((p) => (
+                      <option
+                        key={p.id_pacote_cliente}
+                        value={p.id_pacote_cliente}
+                      >
+                        {p.nome} · {p.sessoes_restantes} sessões
+                      </option>
+                    ))}
+                </select>
+              </label>
+            )}
+            <p className="muted">
+              {packageId
+                ? "A sessão será debitada ao concluir o atendimento; sem cobrança avulsa."
+                : "Pagamento pendente. Combine o pagamento com a clínica."}
+            </p>
             <fieldset className="payments">
               <legend className="sr-only">Forma de pagamento</legend>
               {(["Pix", "Cartão de crédito"] as const).map((p) => (
@@ -1083,7 +1113,7 @@ export default function BeautyApp() {
                   />
                 </label>
                 <div className="time-grid">
-                  {slots.map((s) => (
+                  {available.map((s) => (
                     <button
                       key={s}
                       disabled={!available.includes(s)}

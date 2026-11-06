@@ -1,36 +1,52 @@
 {
-  "name": "bellapelle-mobile",
-  "version": "3.0.0",
+  "name": "bellapelle-clinica",
+  "version": "5.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 0.0.0.0",
+    "dev": "next dev --webpack --hostname 0.0.0.0",
     "build": "next build --webpack",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
-    "db:setup": "node --env-file=.env.local scripts/setup-db.mjs",
+    "db:setup": "npm run db:migrate",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
-    "db:migrate": "node --env-file=.env.local scripts/setup-db.mjs --migrate",
-    "test:api": "node tests/api-integration.mjs"
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
+    "test:api": "node tests/api-integration.mjs",
+    "db:seed": "node --env-file-if-exists=.env.local scripts/seed.mjs",
+    "user:create-admin": "node --env-file-if-exists=.env.local scripts/create-admin.mjs",
+    "env:init": "node scripts/configure.mjs",
+    "test:integration": "node --env-file-if-exists=.env.local --import tsx tests/clinic-integration.ts",
+    "format:check": "prettier --check app/admin components/admin lib/clinic scripts/migrate.mjs",
+    "test:e2e:admin": "playwright test --config playwright.admin.config.ts workflow.spec.ts && playwright test --config playwright.admin.config.ts customer.spec.ts",
+    "api:docs": "node --import tsx scripts/generate-openapi.ts",
+    "test:api:clinic": "node tests/clinic-http.mjs",
+    "lint": "eslint lib/clinic lib/customer components/admin components/customer-portal.tsx app/api/customer scripts/mail-worker.mjs",
+    "mail:worker": "node --env-file-if-exists=.env.local scripts/mail-worker.mjs"
   },
   "dependencies": {
     "lucide-react": "1.54.0",
     "mysql2": "3.24.5",
     "next": "16.4.0",
+    "nodemailer": "^10.1.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "sharp": "0.35.5",
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "1.64.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.4",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "eslint": "^10.12.0",
     "prettier": "3.9.9",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.15",
-    "typescript": "7.0.2"
+    "typescript": "~6.0.0",
+    "typescript-eslint": "^8.71.2"
   },
   "engines": {
     "node": ">=22"

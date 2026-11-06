@@ -2,37 +2,84 @@ services:
   mysql:
     image: mysql:8.4
     environment:
-      MYSQL_ROOT_PASSWORD: root_local_change_me
-      MYSQL_DATABASE: bellapelle_modelo
-      MYSQL_USER: bellapelle
-      MYSQL_PASSWORD: bellapelle_local
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Execute npm run env:init}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bellapelle_modelo}
+      MYSQL_USER: ${MYSQL_USER:-bellapelle}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Execute npm run env:init}
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
-      - mysql_modelo_data:/var/lib/mysql
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./database/002-api.sql:/docker-entrypoint-initdb.d/02-api.sql:ro
+      - mysql_v4_data:/var/lib/mysql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD",
-        ]
+      test: [CMD-SHELL, 'MYSQL_PWD=$$MYSQL_PASSWORD mysql -h 127.0.0.1 -u $$MYSQL_USER -D $$MYSQL_DATABASE -e "SELECT 1"']
       interval: 5s
       timeout: 5s
-      retries: 30
-  app:
-    build: .
-    environment:
+      retries: 40
+  migrate:
+    build:
+      context: .
+      target: tools
+    environment: &environment
+      DATABASE_URL: mysql://${MYSQL_USER:-bellapelle}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE:-bellapelle_modelo}
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      ENABLE_LEGACY_PORTAL: "false"
+      ENABLE_LOCAL_DEMO_AUTH: "false"
       DATA_MODE: mysql
-      DATABASE_URL: mysql://bellapelle:bellapelle_local@mysql:3306/bellapelle_modelo
-      COOKIE_SECURE: "false"
-      ENABLE_LOCAL_DEMO_AUTH: "true"
-      LOCAL_DEMO_CLIENT_ID: "1"
-    ports:
-      - "127.0.0.1:3000:3000"
+      PRIVATE_UPLOAD_DIR: /app/private/uploads
+    command: [node, scripts/migrate.mjs]
     depends_on:
       mysql:
         condition: service_healthy
+  app:
+    build:
+      context: .
+      target: runner
+    environment: *environment
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - uploads:/app/private/uploads
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+  mail:
+    profiles: [mail]
+    build:
+      context: .
+      target: tools
+    environment:
+      <<: *environment
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+    command: [node, scripts/mail-worker.mjs]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  setup:
+    profiles: [tools]
+    build:
+      context: .
+      target: tools
+    environment:
+      <<: *environment
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ALLOW_DEMO_SEED: ${ALLOW_DEMO_SEED:-false}
+    command: [node, scripts/create-admin.mjs]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 volumes:
-  mysql_modelo_data:
+  mysql_v4_data:
+  uploads:

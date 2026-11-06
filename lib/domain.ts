@@ -137,7 +137,7 @@ export const bookingSchema = z
           new Date(d).toISOString().slice(0, 10) === d,
         "Data inválida",
       ),
-    time: z.enum(["09:30", "11:00", "14:30", "16:00"]),
+    time: z.string().regex(/^([01]\d|2[0-3]):(00|30)$/),
     payment: z.enum(["Pix", "Cartão de crédito"]),
   })
   .refine((d) => !isPast(d.date, d.time), "Escolha um horário futuro.")

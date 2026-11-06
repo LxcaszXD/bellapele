@@ -38,6 +38,7 @@ async function handle(
   context: { params: Promise<{ path: string[] }> },
 ) {
   try {
+    if (process.env.ENABLE_LEGACY_PORTAL !== "true") throw new ApiError(404, "Portal legado desabilitado.");
     const route = (await context.params).path.join("/");
     const supported: Record<string, string[]> = {
       bootstrap: ["GET"],

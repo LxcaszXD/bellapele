@@ -1,0 +1,146 @@
+.portal-auth {
+  max-width: 1000px;
+  min-height: 100dvh;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 70px;
+  align-items: center;
+  padding: 60px 32px;
+}
+.portal-auth-brand {
+  color: #873052;
+  text-align: center;
+}
+.portal-auth-brand > svg {
+  margin: 0 auto 20px;
+}
+.portal-auth-brand > span {
+  font:
+    52px Georgia,
+    serif;
+}
+.portal-auth form,
+.portal-account form {
+  display: grid;
+  gap: 16px;
+  background: white;
+  border: 1px solid #eadde3;
+  border-radius: 24px;
+  padding: 28px;
+}
+.portal-auth h1 {
+  font-size: 26px;
+}
+.portal-auth label,
+.portal-account label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+.portal-auth input,
+.portal-account input,
+.portal-account select,
+.portal-account textarea {
+  width: 100%;
+  border: 1px solid #d7c7ce;
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 44px;
+  background: white;
+}
+.portal-button {
+  background: #873052;
+  color: white;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+.portal-auth-links {
+  display: grid;
+  gap: 12px;
+  color: #873052;
+}
+.portal-auth p,
+.portal-auth small {
+  color: #746b70;
+  font-weight: 400;
+}
+.portal-message {
+  padding: 16px;
+  color: #873052;
+  background: #f5e4eb;
+  border-radius: 12px;
+}
+.portal-account-bar {
+  height: 48px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #eadde3;
+  background: #fff;
+  color: #873052;
+}
+.portal-account-bar button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.portal-account {
+  max-width: 850px;
+  margin: auto;
+  padding: 32px 24px;
+}
+.portal-account h1 {
+  font-size: 30px;
+  margin: 20px 0;
+}
+.portal-account h2 {
+  margin: 28px 0 16px;
+  font-size: 24px;
+}
+.portal-account article {
+  background: white;
+  border: 1px solid #eadde3;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 12px 0;
+}
+.portal-account > button {
+  display: flex;
+  gap: 8px;
+}
+.portal-account form {
+  margin: 24px 0;
+}
+.portal-account p {
+  overflow-wrap: anywhere;
+}
+.portal-auth :focus-visible,
+.portal-account :focus-visible {
+  outline: 3px solid #873052;
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .portal-auth {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 32px 20px;
+  }
+  .portal-auth-brand > span {
+    font-size: 38px;
+  }
+  .portal-auth form {
+    padding: 24px;
+  }
+}
+@media (min-width: 768px) {
+  .portal-account-bar {
+    position: relative;
+    z-index: 90;
+  }
+  .wide-header {
+    top: 48px !important;
+  }
+}

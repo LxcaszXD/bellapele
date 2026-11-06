@@ -1,4 +1,2 @@
-import BeautyApp from "@/components/beauty-app";
-export default function Page() {
-  return <BeautyApp />;
-}
+import {redirect} from 'next/navigation';
+export default function Home(){redirect('/portal');}

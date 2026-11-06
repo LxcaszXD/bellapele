@@ -1,147 +1,129 @@
-# BellaPelle — interface responsiva e API MySQL (v3)
+# BellaPelle — gestão da clínica (v5)
 
-Esta versão adapta o projeto Next.js ao banco do diagrama enviado. Inclui interfaces para mobile, tablet, notebook e desktop, toda a API, o SQL com cinco registros por tabela e uma migração aditiva com três tabelas de infraestrutura.
+Continuação da versão responsiva v3. Aplicação administrativa em Next.js App Router, React, TypeScript strict, Tailwind v4, Node.js e MySQL 8.4. A API REST é implementada nos Route Handlers do Next e organizada em serviços de domínio. Mantém mysql2 e Zod do projeto original, sem adicionar outro servidor HTTP ou ORM desnecessariamente.
 
-## Design responsivo
+**Estado da entrega:** continuação integrada com portal individual de clientes. Consulte `docs/VALIDACAO-V5.md` para resultados efetivamente executados e `docs/PENDENCIAS.md` para limites do aceite. Não há processamento externo de cobranças PIX/cartão.
 
-A versão 3 mantém a identidade visual dos protótipos e adapta a navegação, os cards e o agendamento às telas maiores. Consulte `docs/DESIGN-RESPONSIVO.md` e as capturas em `docs/responsive/`.
+## Início rápido no Windows com Docker Desktop
 
-| Largura | Organização |
-|---|---|
-| Até 767 px | Interface mobile e navegação inferior |
-| 768–1023 px | Navegação superior, catálogo e tratamento em duas colunas |
-| 1024–1439 px | Início em grade, catálogo em três colunas, confirmação em duas áreas |
-| A partir de 1440 px | Conteúdo centralizado, espaçamento ampliado e largura de leitura limitada |
+Requisitos: Node.js 22 ou superior, Docker Desktop iniciado com Linux containers e WSL2 atualizado. Execute os comandos na pasta que contém este README e `compose.yaml`.
 
-A API e o modelo MySQL da versão 2 foram preservados. A validação visual utiliza o modo demo; não comprova conexão com um servidor MySQL.
+```powershell
+npm run env:init
+docker compose up --build -d
+docker compose --profile tools run --rm setup
+```
 
-## Já importou BellaPelle-MySQL.sql?
+Abra **http://localhost:3000/admin**. O e-mail e a senha iniciais estão nos campos `ADMIN_EMAIL` e `ADMIN_PASSWORD` do arquivo `.env`, gerado localmente. O script cria senhas aleatórias; não há senha padrão compartilhada. Troque `ADMIN_EMAIL` pelo e-mail desejado antes de executar `setup`. Execute `setup` uma única vez: uma segunda execução informa duplicidade sem redefinir a senha existente.
 
-1. Extraia esta versão em uma pasta nova (não misture `node_modules` ou `.next` com a versão anterior).
-2. Copie `.env.example` para `.env.local` e configure a conexão com **bellapelle_modelo**.
-3. Execute:
+`env:init` usa somente Node, portanto não requer instalar dependências antes do Docker. Ele não sobrescreve `.env` ou `.env.local` já existentes. Não publique esses arquivos nem os coloque no Git.
 
-```sh
+O Compose sobe o MySQL, aguarda o healthcheck, executa migrations e inicia o app. Os dados e fotos ficam em volumes persistentes. Esta versão usa `mysql_v4_data` separado do volume da v3 para não alterar silenciosamente seus dados anteriores. Para migrar a base real existente, siga `docs/OPERACAO.md` e faça backup primeiro.
+
+Para exemplos fictícios (somente banco vazio):
+
+```powershell
+docker compose --profile tools run --rm -e ALLOW_DEMO_SEED=true setup node scripts/seed.mjs
+```
+
+Para acompanhar erros:
+
+```powershell
+docker compose ps
+docker compose logs --tail=100 app migrate mysql
+```
+
+Para parar preservando dados: `docker compose down`. **Não use `down -v` se precisar preservar o banco e as fotos.** Erros 504 de `auth.docker.io` acontecem durante o download, antes de executar o projeto; depois de restabelecer a conexão, repita `docker pull mysql:8.4` e `docker compose up --build -d`.
+
+## Desenvolvimento sem container do app
+
+```powershell
 npm ci
+npm run env:init
+docker compose up -d mysql
 npm run db:migrate
+npm run user:create-admin
 npm run dev
 ```
 
-Abra **http://localhost:3000**. `db:migrate` executa somente `database/002-api.sql`; não reinsere os 90 registros nem apaga dados. Pode ser repetido; configurações de agenda já existentes são preservadas.
+Se já gerou os arquivos de ambiente, não repita `env:init`. `.env.local` aponta o app local para o MySQL em `127.0.0.1:3306`. Com MySQL instalado manualmente, crie uma base UTF8MB4 e configure `DATABASE_URL` para ela. Build: `npm run build`; execução: `npm start`. A imagem Docker utiliza o servidor standalone do Next.
 
-## Ainda não criou o banco?
+## Fluxo de operação
 
-Com Node.js 22+ e MySQL 8.4, crie um banco vazio chamado `bellapelle_modelo`, configure `.env.local` e execute:
+1. Administrador cadastra clientes, profissionais, procedimentos, salas, equipamentos e habilitações.
+2. Habilitações vinculam profissional, procedimento e percentual de comissão. Disponibilidade define os intervalos semanais; bloqueios registram manutenção/ausência.
+3. Anamneses são novas avaliações imutáveis. O profissional acessa clientes associados à sua agenda ou a Vínculos clínicos configurados pelo administrador.
+4. Financeiro vende um pacote em **Pacotes vendidos → Vender pacote**. Parcelas são criadas como pendentes. Não há cobrança externa automática.
+5. Recepção cria o agendamento selecionando cliente, profissional, procedimento, sala, equipamento e pacote opcional.
+6. O atendimento deve estar confirmado e com horário de início alcançado. Use **Iniciar atendimento**, registre fotos autorizadas se exigidas e conclua com os produtos/lotes utilizados.
+7. A conclusão baixa sessão e estoque e gera comissão em uma única transação. Repetir a conclusão retorna o mesmo atendimento.
+8. Registre recebimentos em **Parcelas**. Para avulso, crie a cobrança em **Pagamentos → Cobrança avulsa**. Comissões só podem ser pagas após recebimento integral.
 
-```sh
-npm ci
-npm run db:setup
-npm run dev
+Nenhum atendimento é concluído sem anamnese. Procedimento que exige foto demanda fotografia com consentimento registrado. Fotos são privadas e precisam de autenticação clínica para leitura.
+
+## Organização
+
+- `app/admin`, `components/admin`: painel, formulários, calendário, relatórios e fotos.
+- `app/api/clinic/[...path]`: autenticação, CSRF, dispatch e erros HTTP.
+- `lib/clinic`: permissões, segurança, catálogo, CRUD, operações transacionais e relatórios.
+- `database/001-base.sql` a `005-portal.sql`: migrations versionadas.
+- `database/demo.sql`: dados fictícios opcionais; `scripts/seed.mjs` complementa a migração.
+- `tests`: regras, segurança, integração MySQL, HTTP e Playwright.
+- `docs`: contratos, auditoria, modelo, instruções e resultados.
+
+## Onde entrar
+
+- **Site/cliente:** http://localhost:3000/portal — a raiz redireciona para essa tela.
+- **Equipe:** http://localhost:3000/admin — use ADMIN_EMAIL e ADMIN_PASSWORD gerados no `.env`.
+- Cliente novo usa **Criar minha conta**; cliente já cadastrado pela recepção usa **Recuperar / ativar acesso**. Ativação exige e-mail corretamente cadastrado e SMTP configurado.
+- Administrador publica recursos em **Agenda do portal**, após cadastrar as habilitações. Sem configuração de recursos não é possível reservar aquele procedimento.
+- **Minha conta** exibe pacotes, parcelas, contato e solicitações de privacidade.
+
+## Envio de e-mail
+
+Configure SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_FROM, SMTP_USER e SMTP_PASSWORD no `.env` (Docker) ou `.env.local` (Node). Use dados do seu provedor. Para iniciar o worker:
+
+```powershell
+docker compose --profile mail up -d --build mail
+# Ou sem container:
+npm run mail:worker
 ```
 
-O usuário MySQL deve ter permissão para criar tabelas nesse banco. O script recusa iniciar o esquema base em um banco que já tenha tabelas. Cria o modelo, seus exemplos e as extensões da API. `database/schema.sql` não contém CREATE DATABASE/USE: usa o banco da conexão. `database/BellaPelle-MySQL.sql` é o arquivo independente previamente entregue para importação manual, com CREATE DATABASE/USE.
+O worker processa EmailOutbox com cinco tentativas, expira mensagens de recuperação atrasadas e remove o conteúdo enviado. O prazo do token é de 30 minutos. Sem SMTP configurado não há envio externo; a interface informa somente a solicitação. A API legada permanece desabilitada e não deve ser habilitada em produção.
 
-Alternativa para instalação nova com Docker Desktop:
-
-```sh
-docker compose up --build
-```
-
-O Compose usa um volume novo, `mysql_modelo_data`, e publica a aplicação somente em `127.0.0.1:3000`. O banco, o catálogo e as extensões são inicializados automaticamente. Não use `docker compose down -v` se deseja preservar os dados. Scripts de inicialização Docker só executam no primeiro uso do volume.
-
-Se usava o banco antigo com `customers`, `treatments`, `bookings`: esta entrega não converte essas linhas. Aponte a conexão para o novo banco ou planeje uma migração de dados separada. O banco anterior não é apagado.
-
-## Configuração local
-
-```dotenv
-DATA_MODE=mysql
-DATABASE_URL=mysql://bellapelle:bellapelle_local@127.0.0.1:3306/bellapelle_modelo
-ENABLE_LOCAL_DEMO_AUTH=true
-LOCAL_DEMO_CLIENT_ID=1
-COOKIE_SECURE=false
-```
-
-O modelo exige dados cadastrais reais de Cliente. Por isso, a API NÃO cria clientes fictícios com CPF inventado a cada navegador. Para desenvolvimento local, o acesso demonstrativo usa o Cliente 1 (Amanda) que já existe na amostra. Todos os navegadores desse modo representam esse mesmo cliente. Para testar outro cliente, altere `LOCAL_DEMO_CLIENT_ID`, reinicie e apague o cookie `bellapelle_session_v2` do navegador.
-
-A sessão é um token aleatório em cookie HttpOnly/SameSite=strict; somente seu hash é persistido em `SessaoCliente`, com expiração de sete dias. O cliente da reserva vem da sessão, nunca do JSON da requisição.
-
-**Não é um sistema de login de produção.** Desative `ENABLE_LOCAL_DEMO_AUTH` ao publicar e integre um fluxo de autenticação que crie as sessões após verificar a identidade. Sem sessão válida e sem acesso local habilitado, a API retorna 401. Não há endpoint público que gere sessão a partir de um ID enviado pelo usuário. Em HTTPS use `COOKIE_SECURE=true`; em proxy reverso configure `APP_ORIGIN` com a origem exata do aplicativo.
-
-## O que mudou
-
-| Recurso | Tabelas usadas |
-|---|---|
-| Catálogo e avaliações | Procedimento, Avaliacao, Agendamento |
-| Especialista e recursos de agenda | AgendaConfiguracao, Profissional, ProfissionalProcedimento, Sala, Equipamento |
-| Perfil | Cliente |
-| Favoritos | Favorito |
-| Reserva, reagendamento, cancelamento | Agendamento |
-| Forma de pagamento | Pagamento, Parcela |
-| Sessão e serialização das reservas | SessaoCliente, ControleAgenda |
-
-A interface agora lê os cinco procedimentos do banco, nomes dos profissionais, preços, durações e avaliações reais da amostra. O procedimento 2, por exemplo, pertence à Camila Santos no SQL fornecido. A quantidade de resultados e as médias não são fixas. Os exemplos históricos concluídos aparecem no histórico conforme o status do banco; o simples passar do horário não conclui uma sessão em modo MySQL.
-
-`AgendaConfiguracao` escolhe um profissional, uma sala e, opcionalmente, um equipamento por procedimento. A migração configura os cinco exemplos do SQL anterior. Se utilizar um cadastro diferente, configure essa tabela explicitamente. O banco permite mais profissionais por procedimento, mas esta interface usa apenas a configuração principal. Não há seleção de profissional pelo usuário nesta etapa.
-
-## Rotas e exemplos
-
-Os nomes JSON foram mantidos para compatibilidade com a interface. As tabelas SQL são as do diagrama.
-
-| Método | Rota | Finalidade |
-|---|---|---|
-| GET | `/api/bootstrap` | Cliente da sessão, catálogo, favoritos e reservas |
-| GET | `/api/slots?date=2026-11-20&treatmentId=1` | Horários disponíveis para o procedimento |
-| GET | `/api/slots?date=2026-11-20&treatmentId=1&exclude=10` | Disponibilidade para reagendar uma reserva própria |
-| PUT | `/api/favorites` | Adicionar/remover favorito |
-| POST | `/api/bookings` | Reservar sessão avulsa |
-| PATCH | `/api/bookings/10` | Alterar data, hora e forma de pagamento |
-| DELETE | `/api/bookings/10` | Cancelar sessão futura sem pagamento financeiro registrado |
-
-Favorito:
-
-```json
-{"treatmentId":1,"active":true}
-```
-
-Reserva/reagendamento (use uma data futura):
-
-```json
-{"treatmentId":1,"date":"2026-11-20","time":"11:00","payment":"Pix"}
-```
-
-- `treatmentId` é validado no banco, sem limite fixo de três tratamentos.
-- `slots` agora exige `treatmentId`; a interface enviada já contém esse ajuste.
-- Valores e duração são obtidos no servidor. Reagendamentos preservam preço, duração e recursos originalmente reservados.
-- GET de disponibilidade não garante uma vaga; POST/PATCH verifica novamente em transação.
-- Reservas da API são serializadas com um bloqueio em `ControleAgenda`. A consulta verifica sobreposição de intervalos de cliente, profissional, sala e equipamento.
-- Criação grava Agendamento confirmado + Pagamento pendente + uma Parcela pendente na mesma transação. Nenhuma cobrança real ocorre.
-- Cancelamento cancela também cobrança e parcela pendentes, sem apagar histórico.
-- Reagendamento e cancelamento de reservas com pagamento já registrado, ou de sessões de pacote, exigem atendimento pela recepção; a API não simula estorno nem altera saldo de pacote.
-- Escritas diretas no banco ou outros sistemas devem adotar a mesma disciplina de bloqueio para preservar a proteção de agenda.
-- Erros: 400 dados inválidos; 401 sessão; 403 origem; 404 recurso; 405 método; 409 conflito/regra operacional; 422 falta de configuração; 503 banco indisponível.
-
-## Escopo
-
-A API cobre os fluxos existentes nas seis telas. Não inclui CRUD administrativo de anamnese, produtos, estoque, pacotes, conclusão clínica, cadastro/login ou envio de avaliações. Essas tabelas continuam disponíveis no modelo para próximas etapas. Também não integra gateway financeiro, e-mail ou reembolso. As credenciais do Compose são apenas de desenvolvimento.
 
 ## Testes
 
-```sh
+```powershell
 npm run typecheck
+npm run lint
 npm test
 npm run build
+```
+
+Integração usa banco **vazio e exclusivo**, com nome terminado em `_test`. O teste se recusa a apagar tabelas existentes. Exemplo: crie `bellapelle_test` manualmente; no PowerShell:
+
+```powershell
+$env:TEST_DATABASE_URL="mysql://USUARIO:SENHA@127.0.0.1:3306/bellapelle_test"
+$env:TEST_ADMIN_PASSWORD="SENHA_TEMPORARIA_DE_TESTE_COM_12_OU_MAIS_CARACTERES"
+npm run test:integration
+```
+
+Para testar HTTP/E2E, inicie outra instância do app apontada para esse banco, com `APP_ORIGIN=http://127.0.0.1:3100`, porta 3100, e mantenha `TEST_ADMIN_PASSWORD` igual à utilizada na integração. Os testes usam o usuário fictício `qa@example.test` criado pela integração.
+
+```powershell
+node tests/clinic-http.mjs
+node tests/customer-http.mjs
 npx playwright install chromium
-npm run test:e2e
+npm run test:e2e:admin
 ```
 
-O E2E inicia seu próprio servidor em modo demo; feche outro servidor na porta 3000. O modo demo (`DATA_MODE=demo`) continua funcionando no navegador e não testa consultas SQL.
+O E2E cria um cliente: rode sobre banco de teste recém-preparado. A pipeline inclui instalação, lint, build, tipos, unitários, integração MySQL, HTTP e E2E. A execução da pipeline no GitHub ainda depende de publicar o repositório.
 
-Para validar a nova API COM MYSQL, mantenha `npm run dev` ativo e, em outro terminal de desenvolvimento, rode:
+## API e produção
 
-```sh
-npm run test:api
-```
+Contrato em `docs/CONTRATO-V4.md`, inventário OpenAPI em `docs/openapi.json`. Mutações exigem cookie de sessão, Origin correspondente a `APP_ORIGIN` e header `X-CSRF-Token` retornado no login/session. Sessões expiram após 8 horas e são invalidadas no logout/alteração de usuário.
 
-Esse teste cria duas requisições concorrentes para a mesma vaga e espera uma reserva e um conflito; verifica preço, persistência, pagamento pendente, reagendamento e cancelamento. Ele deixa as reservas de teste canceladas no histórico, sem excluir dados. Use somente banco de teste. `TEST_API_URL` permite indicar outro endereço.
+Use HTTPS e `APP_ORIGIN` com URL HTTPS em produção; os cookies passam a incluir Secure. Configure proxy reverso, backups criptografados do MySQL e fotos, restauração testada e acesso restrito à infraestrutura. Não exponha a porta MySQL publicamente. Recuperação de senha grava mensagens em `EmailOutbox`; o envio de e-mail externo ainda precisa de integração e credenciais. Não há cobrança PIX/cartão externa, SMS ou WhatsApp integrado.
 
-Veja `docs/VALIDACAO.md` para o que foi efetivamente executado nesta entrega.
+O sistema implementa controles técnicos, mas não constitui certificação de conformidade jurídica ou LGPD. Retenção, consentimentos e procedimentos de atendimento a titulares precisam ser aprovados pela clínica.

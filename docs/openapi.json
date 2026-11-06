@@ -1,0 +1,5597 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BellaPelle API",
+    "version": "5.0.0",
+    "description": "Cookies de sessão. Mutações exigem Origin e X-CSRF-Token. Financeiro interno sem cobrança externa."
+  },
+  "servers": [
+    {
+      "url": "/api/clinic"
+    }
+  ],
+  "security": [
+    {
+      "session": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "bellapelle_staff"
+      }
+    }
+  },
+  "paths": {
+    "/agenda-portal": {
+      "get": {
+        "summary": "Listar Agenda do portal",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Agenda do portal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_procedimento": {
+                    "type": "integer",
+                    "description": "procedimento"
+                  },
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "id_sala": {
+                    "type": "integer",
+                    "description": "sala"
+                  },
+                  "id_equipamento": {
+                    "type": "integer",
+                    "description": "equipamento"
+                  }
+                },
+                "required": [
+                  "id_procedimento",
+                  "id_profissional",
+                  "id_sala"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/agenda-portal/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Agenda do portal",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Agenda do portal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_procedimento": {
+                    "type": "integer",
+                    "description": "procedimento"
+                  },
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "id_sala": {
+                    "type": "integer",
+                    "description": "sala"
+                  },
+                  "id_equipamento": {
+                    "type": "integer",
+                    "description": "equipamento"
+                  }
+                },
+                "required": [
+                  "id_procedimento",
+                  "id_profissional",
+                  "id_sala"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/vinculos": {
+      "get": {
+        "summary": "Listar Vínculos clínicos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Vínculos clínicos",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_cliente": {
+                    "type": "integer",
+                    "description": "cliente"
+                  },
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  }
+                },
+                "required": [
+                  "id_cliente",
+                  "id_profissional"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/vinculos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Vínculos clínicos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Vínculos clínicos",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_cliente": {
+                    "type": "integer",
+                    "description": "cliente"
+                  },
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  }
+                },
+                "required": [
+                  "id_cliente",
+                  "id_profissional"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/politica-faltas": {
+      "get": {
+        "summary": "Listar Política de faltas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Política de faltas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "consumir_sessao": {
+                    "type": "boolean",
+                    "description": "consumir sessao"
+                  },
+                  "justificativa": {
+                    "type": "string",
+                    "description": "justificativa"
+                  }
+                },
+                "required": [
+                  "consumir_sessao",
+                  "justificativa"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/politica-faltas/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Política de faltas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Política de faltas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "consumir_sessao": {
+                    "type": "boolean",
+                    "description": "consumir sessao"
+                  },
+                  "justificativa": {
+                    "type": "string",
+                    "description": "justificativa"
+                  }
+                },
+                "required": [
+                  "consumir_sessao",
+                  "justificativa"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/privacidade": {
+      "get": {
+        "summary": "Listar Solicitações de privacidade",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Solicitações de privacidade",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_cliente": {
+                    "type": "integer",
+                    "description": "cliente"
+                  },
+                  "tipo": {
+                    "type": "string",
+                    "description": "tipo",
+                    "enum": [
+                      "acesso",
+                      "correcao",
+                      "exclusao"
+                    ]
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "descricao"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "status",
+                    "enum": [
+                      "aberto",
+                      "em_analise",
+                      "atendido",
+                      "indeferido"
+                    ]
+                  },
+                  "resposta": {
+                    "type": "string",
+                    "description": "resposta"
+                  }
+                },
+                "required": [
+                  "id_cliente",
+                  "tipo",
+                  "descricao",
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/privacidade/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Solicitações de privacidade",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Solicitações de privacidade",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_cliente": {
+                    "type": "integer",
+                    "description": "cliente"
+                  },
+                  "tipo": {
+                    "type": "string",
+                    "description": "tipo",
+                    "enum": [
+                      "acesso",
+                      "correcao",
+                      "exclusao"
+                    ]
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "descricao"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "status",
+                    "enum": [
+                      "aberto",
+                      "em_analise",
+                      "atendido",
+                      "indeferido"
+                    ]
+                  },
+                  "resposta": {
+                    "type": "string",
+                    "description": "resposta"
+                  }
+                },
+                "required": [
+                  "id_cliente",
+                  "tipo",
+                  "descricao",
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/clientes": {
+      "get": {
+        "summary": "Listar Clientes",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Clientes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome_completo": {
+                    "type": "string",
+                    "description": "nome completo"
+                  },
+                  "cpf": {
+                    "type": "string",
+                    "description": "cpf"
+                  },
+                  "data_nascimento": {
+                    "type": "string",
+                    "description": "data nascimento"
+                  },
+                  "genero": {
+                    "type": "string",
+                    "description": "genero"
+                  },
+                  "telefone": {
+                    "type": "string",
+                    "description": "telefone"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email"
+                  },
+                  "endereco": {
+                    "type": "string",
+                    "description": "endereco"
+                  },
+                  "como_conheceu": {
+                    "type": "string",
+                    "description": "como conheceu"
+                  },
+                  "preferencias": {
+                    "type": "string",
+                    "description": "preferencias"
+                  }
+                },
+                "required": [
+                  "nome_completo",
+                  "cpf",
+                  "data_nascimento",
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/clientes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Clientes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Clientes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome_completo": {
+                    "type": "string",
+                    "description": "nome completo"
+                  },
+                  "cpf": {
+                    "type": "string",
+                    "description": "cpf"
+                  },
+                  "data_nascimento": {
+                    "type": "string",
+                    "description": "data nascimento"
+                  },
+                  "genero": {
+                    "type": "string",
+                    "description": "genero"
+                  },
+                  "telefone": {
+                    "type": "string",
+                    "description": "telefone"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email"
+                  },
+                  "endereco": {
+                    "type": "string",
+                    "description": "endereco"
+                  },
+                  "como_conheceu": {
+                    "type": "string",
+                    "description": "como conheceu"
+                  },
+                  "preferencias": {
+                    "type": "string",
+                    "description": "preferencias"
+                  }
+                },
+                "required": [
+                  "nome_completo",
+                  "cpf",
+                  "data_nascimento",
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/profissionais": {
+      "get": {
+        "summary": "Listar Profissionais",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Profissionais",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "especialidade": {
+                    "type": "string",
+                    "description": "especialidade"
+                  },
+                  "registro_profissional": {
+                    "type": "string",
+                    "description": "registro profissional"
+                  },
+                  "telefone": {
+                    "type": "string",
+                    "description": "telefone"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email"
+                  },
+                  "data_admissao": {
+                    "type": "string",
+                    "description": "data admissao"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "especialidade",
+                  "email",
+                  "data_admissao"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/profissionais/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Profissionais",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Profissionais",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "especialidade": {
+                    "type": "string",
+                    "description": "especialidade"
+                  },
+                  "registro_profissional": {
+                    "type": "string",
+                    "description": "registro profissional"
+                  },
+                  "telefone": {
+                    "type": "string",
+                    "description": "telefone"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email"
+                  },
+                  "data_admissao": {
+                    "type": "string",
+                    "description": "data admissao"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "especialidade",
+                  "email",
+                  "data_admissao"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/procedimentos": {
+      "get": {
+        "summary": "Listar Procedimentos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Procedimentos",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "categoria": {
+                    "type": "string",
+                    "description": "categoria"
+                  },
+                  "duracao_minutos": {
+                    "type": "integer",
+                    "description": "duracao minutos"
+                  },
+                  "valor_avulso": {
+                    "type": "string",
+                    "description": "valor avulso"
+                  },
+                  "exige_registro_foto": {
+                    "type": "boolean",
+                    "description": "exige registro foto"
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "descricao"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "categoria",
+                  "duracao_minutos",
+                  "valor_avulso"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/procedimentos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Procedimentos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Procedimentos",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "categoria": {
+                    "type": "string",
+                    "description": "categoria"
+                  },
+                  "duracao_minutos": {
+                    "type": "integer",
+                    "description": "duracao minutos"
+                  },
+                  "valor_avulso": {
+                    "type": "string",
+                    "description": "valor avulso"
+                  },
+                  "exige_registro_foto": {
+                    "type": "boolean",
+                    "description": "exige registro foto"
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "descricao"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "categoria",
+                  "duracao_minutos",
+                  "valor_avulso"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/salas": {
+      "get": {
+        "summary": "Listar Salas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Salas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "descricao"
+                  }
+                },
+                "required": [
+                  "nome"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/salas/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Salas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Salas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "descricao": {
+                    "type": "string",
+                    "description": "descricao"
+                  }
+                },
+                "required": [
+                  "nome"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/equipamentos": {
+      "get": {
+        "summary": "Listar Equipamentos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Equipamentos",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "tipo": {
+                    "type": "string",
+                    "description": "tipo"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "tipo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/equipamentos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Equipamentos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Equipamentos",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "tipo": {
+                    "type": "string",
+                    "description": "tipo"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "tipo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/habilitacoes": {
+      "get": {
+        "summary": "Listar Habilitações e percentuais",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Habilitações e percentuais",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "id_procedimento": {
+                    "type": "integer",
+                    "description": "procedimento"
+                  },
+                  "percentual_comissao": {
+                    "type": "string",
+                    "description": "percentual comissao"
+                  }
+                },
+                "required": [
+                  "id_profissional",
+                  "id_procedimento",
+                  "percentual_comissao"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/habilitacoes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Habilitações e percentuais",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Habilitações e percentuais",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "id_procedimento": {
+                    "type": "integer",
+                    "description": "procedimento"
+                  },
+                  "percentual_comissao": {
+                    "type": "string",
+                    "description": "percentual comissao"
+                  }
+                },
+                "required": [
+                  "id_profissional",
+                  "id_procedimento",
+                  "percentual_comissao"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/disponibilidades": {
+      "get": {
+        "summary": "Listar Disponibilidade semanal",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Disponibilidade semanal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "dia_semana": {
+                    "type": "string",
+                    "description": "dia semana",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6"
+                    ]
+                  },
+                  "hora_inicio": {
+                    "type": "string",
+                    "description": "hora inicio"
+                  },
+                  "hora_fim": {
+                    "type": "string",
+                    "description": "hora fim"
+                  }
+                },
+                "required": [
+                  "id_profissional",
+                  "dia_semana",
+                  "hora_inicio",
+                  "hora_fim"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/disponibilidades/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Disponibilidade semanal",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Disponibilidade semanal",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "dia_semana": {
+                    "type": "string",
+                    "description": "dia semana",
+                    "enum": [
+                      "0",
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6"
+                    ]
+                  },
+                  "hora_inicio": {
+                    "type": "string",
+                    "description": "hora inicio"
+                  },
+                  "hora_fim": {
+                    "type": "string",
+                    "description": "hora fim"
+                  }
+                },
+                "required": [
+                  "id_profissional",
+                  "dia_semana",
+                  "hora_inicio",
+                  "hora_fim"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/bloqueios": {
+      "get": {
+        "summary": "Listar Bloqueios e manutenção",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Bloqueios e manutenção",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "id_sala": {
+                    "type": "integer",
+                    "description": "sala"
+                  },
+                  "id_equipamento": {
+                    "type": "integer",
+                    "description": "equipamento"
+                  },
+                  "inicio": {
+                    "type": "string",
+                    "description": "inicio"
+                  },
+                  "fim": {
+                    "type": "string",
+                    "description": "fim"
+                  },
+                  "motivo": {
+                    "type": "string",
+                    "description": "motivo"
+                  }
+                },
+                "required": [
+                  "inicio",
+                  "fim",
+                  "motivo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/bloqueios/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Bloqueios e manutenção",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Bloqueios e manutenção",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "id_sala": {
+                    "type": "integer",
+                    "description": "sala"
+                  },
+                  "id_equipamento": {
+                    "type": "integer",
+                    "description": "equipamento"
+                  },
+                  "inicio": {
+                    "type": "string",
+                    "description": "inicio"
+                  },
+                  "fim": {
+                    "type": "string",
+                    "description": "fim"
+                  },
+                  "motivo": {
+                    "type": "string",
+                    "description": "motivo"
+                  }
+                },
+                "required": [
+                  "inicio",
+                  "fim",
+                  "motivo"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/anamneses": {
+      "get": {
+        "summary": "Listar Anamneses",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Anamneses",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_cliente": {
+                    "type": "integer",
+                    "description": "cliente"
+                  },
+                  "id_profissional": {
+                    "type": "integer",
+                    "description": "profissional"
+                  },
+                  "gestante_lactante": {
+                    "type": "boolean",
+                    "description": "gestante lactante"
+                  },
+                  "marcapasso": {
+                    "type": "boolean",
+                    "description": "marcapasso"
+                  },
+                  "proteses_metalicas": {
+                    "type": "boolean",
+                    "description": "proteses metalicas"
+                  },
+                  "uso_isotretinoina": {
+                    "type": "boolean",
+                    "description": "uso isotretinoina"
+                  },
+                  "tendencia_queloide": {
+                    "type": "boolean",
+                    "description": "tendencia queloide"
+                  },
+                  "alergia_acidos_anestesicos": {
+                    "type": "string",
+                    "description": "alergia acidos anestesicos"
+                  },
+                  "lesoes_ativas_pele": {
+                    "type": "string",
+                    "description": "lesoes ativas pele"
+                  },
+                  "contraindicacoes": {
+                    "type": "string",
+                    "description": "contraindicacoes"
+                  },
+                  "fototipo_fitzpatrick": {
+                    "type": "integer",
+                    "description": "fototipo fitzpatrick"
+                  },
+                  "medida_cintura": {
+                    "type": "string",
+                    "description": "medida cintura"
+                  },
+                  "medida_quadril": {
+                    "type": "string",
+                    "description": "medida quadril"
+                  },
+                  "medida_coxa": {
+                    "type": "string",
+                    "description": "medida coxa"
+                  },
+                  "data_avaliacao": {
+                    "type": "string",
+                    "description": "data avaliacao"
+                  }
+                },
+                "required": [
+                  "id_cliente",
+                  "id_profissional",
+                  "data_avaliacao"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/anamneses/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Anamneses",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pacotes": {
+      "get": {
+        "summary": "Listar Pacotes",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Pacotes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_procedimento": {
+                    "type": "integer",
+                    "description": "procedimento"
+                  },
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "quantidade_sessoes": {
+                    "type": "integer",
+                    "description": "quantidade sessoes"
+                  },
+                  "validade_meses": {
+                    "type": "integer",
+                    "description": "validade meses"
+                  },
+                  "valor_total": {
+                    "type": "string",
+                    "description": "valor total"
+                  }
+                },
+                "required": [
+                  "id_procedimento",
+                  "nome",
+                  "quantidade_sessoes",
+                  "validade_meses",
+                  "valor_total"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pacotes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Pacotes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Pacotes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_procedimento": {
+                    "type": "integer",
+                    "description": "procedimento"
+                  },
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "quantidade_sessoes": {
+                    "type": "integer",
+                    "description": "quantidade sessoes"
+                  },
+                  "validade_meses": {
+                    "type": "integer",
+                    "description": "validade meses"
+                  },
+                  "valor_total": {
+                    "type": "string",
+                    "description": "valor total"
+                  }
+                },
+                "required": [
+                  "id_procedimento",
+                  "nome",
+                  "quantidade_sessoes",
+                  "validade_meses",
+                  "valor_total"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pacotes-clientes": {
+      "get": {
+        "summary": "Listar Pacotes vendidos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pacotes-clientes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Pacotes vendidos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pagamentos": {
+      "get": {
+        "summary": "Listar Pagamentos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/pagamentos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Pagamentos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/parcelas": {
+      "get": {
+        "summary": "Listar Parcelas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/parcelas/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Parcelas",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/agendamentos": {
+      "get": {
+        "summary": "Listar Agenda",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/agendamentos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Agenda",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/atendimentos": {
+      "get": {
+        "summary": "Listar Atendimentos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/atendimentos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Atendimentos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/produtos": {
+      "get": {
+        "summary": "Listar Produtos e lotes",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Cadastrar Produtos e lotes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "categoria": {
+                    "type": "string",
+                    "description": "categoria"
+                  },
+                  "marca": {
+                    "type": "string",
+                    "description": "marca"
+                  },
+                  "unidade_medida": {
+                    "type": "string",
+                    "description": "unidade medida",
+                    "enum": [
+                      "un",
+                      "ml",
+                      "g"
+                    ]
+                  },
+                  "numero_lote": {
+                    "type": "string",
+                    "description": "numero lote"
+                  },
+                  "data_validade": {
+                    "type": "string",
+                    "description": "data validade"
+                  },
+                  "valor_unitario": {
+                    "type": "string",
+                    "description": "valor unitario"
+                  },
+                  "estoque_minimo": {
+                    "type": "string",
+                    "description": "estoque minimo"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "categoria",
+                  "marca",
+                  "unidade_medida",
+                  "numero_lote",
+                  "data_validade",
+                  "valor_unitario"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/produtos/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Produtos e lotes",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Editar Produtos e lotes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nome": {
+                    "type": "string",
+                    "description": "nome"
+                  },
+                  "categoria": {
+                    "type": "string",
+                    "description": "categoria"
+                  },
+                  "marca": {
+                    "type": "string",
+                    "description": "marca"
+                  },
+                  "unidade_medida": {
+                    "type": "string",
+                    "description": "unidade medida",
+                    "enum": [
+                      "un",
+                      "ml",
+                      "g"
+                    ]
+                  },
+                  "numero_lote": {
+                    "type": "string",
+                    "description": "numero lote"
+                  },
+                  "data_validade": {
+                    "type": "string",
+                    "description": "data validade"
+                  },
+                  "valor_unitario": {
+                    "type": "string",
+                    "description": "valor unitario"
+                  },
+                  "estoque_minimo": {
+                    "type": "string",
+                    "description": "estoque minimo"
+                  }
+                },
+                "required": [
+                  "nome",
+                  "categoria",
+                  "marca",
+                  "unidade_medida",
+                  "numero_lote",
+                  "data_validade",
+                  "valor_unitario"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Desativar preservando histórico",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/movimentacoes": {
+      "get": {
+        "summary": "Listar Movimentações de estoque",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/movimentacoes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Movimentações de estoque",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/comissoes": {
+      "get": {
+        "summary": "Listar Comissões",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/comissoes/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Comissões",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/faltas": {
+      "get": {
+        "summary": "Listar Faltas, cancelamentos e remarcações",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cliente",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profissional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "procedimento",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/faltas/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Consultar Faltas, cancelamentos e remarcações",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/vender-pacote": {
+      "post": {
+        "summary": "vender-pacote",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/agendar": {
+      "post": {
+        "summary": "agendar",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/reagendar": {
+      "post": {
+        "summary": "reagendar",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/status-agenda": {
+      "post": {
+        "summary": "status-agenda",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/iniciar-atendimento": {
+      "post": {
+        "summary": "iniciar-atendimento",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/concluir-atendimento": {
+      "post": {
+        "summary": "concluir-atendimento",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/pagamento-avulso": {
+      "post": {
+        "summary": "pagamento-avulso",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/receber-parcela": {
+      "post": {
+        "summary": "receber-parcela",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/estornar-pagamento": {
+      "post": {
+        "summary": "estornar-pagamento",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/cancelar-pagamento": {
+      "post": {
+        "summary": "cancelar-pagamento",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/movimentar-estoque": {
+      "post": {
+        "summary": "movimentar-estoque",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/operations/pagar-comissao": {
+      "post": {
+        "summary": "pagar-comissao",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "login",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "logout",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/auth/forgot": {
+      "post": {
+        "summary": "forgot",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/auth/reset": {
+      "post": {
+        "summary": "reset",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "summary": "Sessão e token CSRF",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "summary": "Indicadores reais",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/meta": {
+      "get": {
+        "summary": "Catálogo autorizado de recursos",
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    },
+    "/reports/{kind}": {
+      "get": {
+        "summary": "Relatório filtrado por from/to",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação concluída"
+          },
+          "401": {
+            "description": "Sessão ausente ou expirada"
+          },
+          "403": {
+            "description": "Permissão, origem ou CSRF inválidos"
+          },
+          "409": {
+            "description": "Conflito de negócio"
+          },
+          "422": {
+            "description": "Dados inválidos"
+          }
+        }
+      }
+    }
+  }
+}
