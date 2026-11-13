@@ -5,11 +5,17 @@ if (process.env.ALLOW_DEMO_SEED !== "true")
   throw Error(
     "Defina ALLOW_DEMO_SEED=true exclusivamente num banco de demonstração vazio.",
   );
+if (process.env.NODE_ENV === "production")
+  throw Error("O seed de demonstração não pode ser executado em produção.");
+if (!process.env.DATABASE_URL)
+  throw Error("Defina DATABASE_URL para a base local de demonstração.");
+const demoPassword = process.env.DEMO_PASSWORD;
+if (!demoPassword || demoPassword.length < 12 || demoPassword.length > 128)
+  throw Error("Configure DEMO_PASSWORD (12 a 128 caracteres) no ambiente local.");
 const c = await mysql.createConnection({
   uri: process.env.DATABASE_URL,
   multipleStatements: true,
 });
-const demoPassword = "BellaPelleDemo2026!";
 const passwordHash = async () => {
   const salt = randomBytes(16).toString("hex");
   const key = await new Promise((resolve, reject) =>
@@ -36,10 +42,45 @@ function demoCpf(index) {
   return digits.join("");
 }
 try {
-  const [[row]] = await c.query("SELECT COUNT(*) n FROM Cliente");
-  if (row.n)
+  const demoTables = [
+    "Cliente", "Profissional", "Procedimento", "Sala", "Equipamento",
+    "ProfissionalProcedimento", "Anamnese", "Pacote", "PacoteCliente",
+    "Agendamento", "Atendimento", "Produto", "ProdutoAplicado",
+    "MovimentacaoEstoque", "Pagamento", "Parcela", "Favorito", "Avaliacao",
+    "AgendaConfiguracao", "Auditoria", "Disponibilidade", "Bloqueio",
+    "EventoAgenda", "ConsumoSessao", "Comissao", "Recebimento",
+    "HistoricoPreco", "Usuario", "AuditoriaSeguranca", "ContaCliente",
+    "AuditoriaCliente", "VinculoClinico", "PedidoPrivacidade", "BlogPost",
+  ];
+  const [[schema]] = await c.query("SELECT DATABASE() AS name");
+  if (!schema?.name)
+    throw Error("DATABASE_URL precisa apontar para um banco MySQL específico.");
+  const [[tableRows]] = await c.query(
+    "SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (?)",
+    [demoTables],
+  );
+  if (Number(tableRows.total) !== demoTables.length)
+    throw Error("Execute npm run db:migrate antes de carregar o seed.");
+  const [[existingUsers]] = await c.query(
+    "SELECT COUNT(*) AS total, MIN(id_usuario) AS first_id, MAX(id_usuario) AS last_id, MIN(perfil) AS profile, MAX(perfil) AS last_profile FROM Usuario",
+  );
+  const hasOnlyInitialAdmin =
+    Number(existingUsers.total) === 1 &&
+    Number(existingUsers.first_id) === 1 &&
+    Number(existingUsers.last_id) === 1 &&
+    existingUsers.profile === "administrador" &&
+    existingUsers.last_profile === "administrador";
+  const occupied = [];
+  for (const table of demoTables) {
+    // `setup` creates the real admin before the optional demo seed. Preserve
+    // that account; every other business/demo table still must be empty.
+    if (table === "Usuario" && hasOnlyInitialAdmin) continue;
+    const [[count]] = await c.query(`SELECT COUNT(*) AS total FROM \`${table}\``);
+    if (Number(count.total) > 0) occupied.push(`${table} (${count.total})`);
+  }
+  if (occupied.length)
     throw Error(
-      "Seed recusado: já existem clientes; nenhum dado foi alterado.",
+      `Seed recusado: as tabelas de demonstração precisam estar vazias. Encontrados dados em: ${occupied.join(", ")}. Nenhuma alteração foi feita.`,
     );
   await c.query("SET time_zone='+00:00'");
   await c.query(
@@ -62,23 +103,15 @@ try {
       "INSERT INTO Disponibilidade(id_profissional,dia_semana,hora_inicio,hora_fim) SELECT id_profissional,?,'08:00:00','19:00:00' FROM Profissional",
       [d],
     );
-  const demoTables = [
-    "Cliente", "Profissional", "Procedimento", "Sala", "Equipamento",
-    "ProfissionalProcedimento", "Anamnese", "Pacote", "PacoteCliente",
-    "Agendamento", "Atendimento", "Produto", "ProdutoAplicado",
-    "MovimentacaoEstoque", "Pagamento", "Parcela", "Favorito", "Avaliacao",
-    "AgendaConfiguracao", "Auditoria", "Disponibilidade", "Bloqueio",
-    "EventoAgenda", "ConsumoSessao", "Comissao", "Recebimento",
-    "HistoricoPreco", "Usuario", "AuditoriaSeguranca", "ContaCliente",
-    "AuditoriaCliente", "VinculoClinico", "PedidoPrivacidade", "BlogPost",
-  ];
+  const minimumRows = { Profissional: 3, Usuario: 6 };
   for (const table of demoTables) {
     const [[count]] = await c.query(`SELECT COUNT(*) AS total FROM \`${table}\``);
-    if (Number(count.total) < 10)
-      throw Error(`Seed incompleto: ${table} tem menos de 10 registros.`);
+    const minimum = minimumRows[table] ?? 10;
+    if (Number(count.total) < minimum)
+      throw Error(`Seed incompleto: ${table} precisa ter ao menos ${minimum} registros.`);
   }
   console.log(
-    `10 conjuntos de dados fictícios carregados. Login de clientes e usuários demo: senha ${demoPassword}. As tabelas de sessão, tokens, limite de acesso, e-mail e fotos clínicas continuam vazias por segurança.`,
+    "Dados fictícios carregados. Use DEMO_PASSWORD do ambiente local para acessar contas de demonstração. As tabelas de sessão, tokens, limite de acesso, e-mail e fotos clínicas continuam vazias por segurança.",
   );
 } finally {
   await c.end();
