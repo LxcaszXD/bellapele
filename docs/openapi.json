@@ -25,261 +25,6 @@
     }
   },
   "paths": {
-    "/configuracao-publica": {
-      "get": {
-        "summary": "Listar Contato e privacidade do site",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "direction",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cliente",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "profissional",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "procedimento",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "from",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      },
-      "post": {
-        "summary": "Cadastrar Contato e privacidade do site",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "telefone": {
-                    "type": "string",
-                    "description": "telefone"
-                  },
-                  "whatsapp": {
-                    "type": "string",
-                    "description": "whatsapp"
-                  },
-                  "email": {
-                    "type": "string",
-                    "description": "email"
-                  },
-                  "endereco": {
-                    "type": "string",
-                    "description": "endereco"
-                  },
-                  "horario_atendimento": {
-                    "type": "string",
-                    "description": "horario atendimento"
-                  },
-                  "cnpj": {
-                    "type": "string",
-                    "description": "cnpj"
-                  },
-                  "politica_privacidade": {
-                    "type": "string",
-                    "description": "politica privacidade"
-                  }
-                },
-                "required": []
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      }
-    },
-    "/configuracao-publica/{id}": {
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "get": {
-        "summary": "Consultar Contato e privacidade do site",
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Editar Contato e privacidade do site",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "telefone": {
-                    "type": "string",
-                    "description": "telefone"
-                  },
-                  "whatsapp": {
-                    "type": "string",
-                    "description": "whatsapp"
-                  },
-                  "email": {
-                    "type": "string",
-                    "description": "email"
-                  },
-                  "endereco": {
-                    "type": "string",
-                    "description": "endereco"
-                  },
-                  "horario_atendimento": {
-                    "type": "string",
-                    "description": "horario atendimento"
-                  },
-                  "cnpj": {
-                    "type": "string",
-                    "description": "cnpj"
-                  },
-                  "politica_privacidade": {
-                    "type": "string",
-                    "description": "politica privacidade"
-                  }
-                },
-                "required": []
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      }
-    },
     "/agenda-portal": {
       "get": {
         "summary": "Listar Agenda do portal",
@@ -1685,22 +1430,13 @@
                   "data_admissao": {
                     "type": "string",
                     "description": "data admissao"
-                  },
-                  "foto_url": {
-                    "type": "string",
-                    "description": "Foto do profissional (URL ou caminho)"
-                  },
-                  "anos_experiencia": {
-                    "type": "integer",
-                    "description": "Anos de experiência"
                   }
                 },
                 "required": [
                   "nome",
                   "especialidade",
                   "email",
-                  "data_admissao",
-                  "anos_experiencia"
+                  "data_admissao"
                 ]
               }
             }
@@ -1788,22 +1524,13 @@
                   "data_admissao": {
                     "type": "string",
                     "description": "data admissao"
-                  },
-                  "foto_url": {
-                    "type": "string",
-                    "description": "Foto do profissional (URL ou caminho)"
-                  },
-                  "anos_experiencia": {
-                    "type": "integer",
-                    "description": "Anos de experiência"
                   }
                 },
                 "required": [
                   "nome",
                   "especialidade",
                   "email",
-                  "data_admissao",
-                  "anos_experiencia"
+                  "data_admissao"
                 ]
               }
             }
@@ -1980,10 +1707,6 @@
                   "descricao": {
                     "type": "string",
                     "description": "descricao"
-                  },
-                  "imagem_url": {
-                    "type": "string",
-                    "description": "Foto ou imagem (URL ou caminho)"
                   }
                 },
                 "required": [
@@ -2078,10 +1801,6 @@
                   "descricao": {
                     "type": "string",
                     "description": "descricao"
-                  },
-                  "imagem_url": {
-                    "type": "string",
-                    "description": "Foto ou imagem (URL ou caminho)"
                   }
                 },
                 "required": [
@@ -2114,514 +1833,6 @@
       },
       "delete": {
         "summary": "Desativar preservando histórico",
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      }
-    },
-    "/blog": {
-      "get": {
-        "summary": "Listar Conteúdo do blog",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "direction",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cliente",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "profissional",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "procedimento",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "from",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      },
-      "post": {
-        "summary": "Cadastrar Conteúdo do blog",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "titulo": {
-                    "type": "string",
-                    "description": "titulo"
-                  },
-                  "resumo": {
-                    "type": "string",
-                    "description": "resumo"
-                  },
-                  "conteudo": {
-                    "type": "string",
-                    "description": "conteudo"
-                  },
-                  "imagem_url": {
-                    "type": "string",
-                    "description": "Foto ou imagem (URL ou caminho)"
-                  },
-                  "publicado": {
-                    "type": "boolean",
-                    "description": "publicado"
-                  },
-                  "data_publicacao": {
-                    "type": "string",
-                    "description": "data publicacao"
-                  }
-                },
-                "required": [
-                  "titulo",
-                  "resumo",
-                  "conteudo"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      }
-    },
-    "/blog/{id}": {
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "get": {
-        "summary": "Consultar Conteúdo do blog",
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Editar Conteúdo do blog",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "titulo": {
-                    "type": "string",
-                    "description": "titulo"
-                  },
-                  "resumo": {
-                    "type": "string",
-                    "description": "resumo"
-                  },
-                  "conteudo": {
-                    "type": "string",
-                    "description": "conteudo"
-                  },
-                  "imagem_url": {
-                    "type": "string",
-                    "description": "Foto ou imagem (URL ou caminho)"
-                  },
-                  "publicado": {
-                    "type": "boolean",
-                    "description": "publicado"
-                  },
-                  "data_publicacao": {
-                    "type": "string",
-                    "description": "data publicacao"
-                  }
-                },
-                "required": [
-                  "titulo",
-                  "resumo",
-                  "conteudo"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      }
-    },
-    "/avaliacoes-publicas": {
-      "get": {
-        "summary": "Listar Avaliações e autorização de publicação",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "search",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "direction",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cliente",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "profissional",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "procedimento",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "from",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      },
-      "post": {
-        "summary": "Cadastrar Avaliações e autorização de publicação",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "id_agendamento": {
-                    "type": "integer",
-                    "description": "agendamento"
-                  },
-                  "nota": {
-                    "type": "integer",
-                    "description": "nota"
-                  },
-                  "comentario": {
-                    "type": "string",
-                    "description": "comentario"
-                  },
-                  "consentimento_publicacao": {
-                    "type": "boolean",
-                    "description": "consentimento publicacao"
-                  },
-                  "publicada": {
-                    "type": "boolean",
-                    "description": "publicada"
-                  },
-                  "data_avaliacao": {
-                    "type": "string",
-                    "description": "data avaliacao"
-                  }
-                },
-                "required": [
-                  "id_agendamento",
-                  "nota"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      }
-    },
-    "/avaliacoes-publicas/{id}": {
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "schema": {
-            "type": "integer"
-          }
-        }
-      ],
-      "get": {
-        "summary": "Consultar Avaliações e autorização de publicação",
-        "responses": {
-          "200": {
-            "description": "Operação concluída"
-          },
-          "401": {
-            "description": "Sessão ausente ou expirada"
-          },
-          "403": {
-            "description": "Permissão, origem ou CSRF inválidos"
-          },
-          "409": {
-            "description": "Conflito de negócio"
-          },
-          "422": {
-            "description": "Dados inválidos"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Editar Avaliações e autorização de publicação",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "id_agendamento": {
-                    "type": "integer",
-                    "description": "agendamento"
-                  },
-                  "nota": {
-                    "type": "integer",
-                    "description": "nota"
-                  },
-                  "comentario": {
-                    "type": "string",
-                    "description": "comentario"
-                  },
-                  "consentimento_publicacao": {
-                    "type": "boolean",
-                    "description": "consentimento publicacao"
-                  },
-                  "publicada": {
-                    "type": "boolean",
-                    "description": "publicada"
-                  },
-                  "data_avaliacao": {
-                    "type": "string",
-                    "description": "data avaliacao"
-                  }
-                },
-                "required": [
-                  "id_agendamento",
-                  "nota"
-                ]
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Operação concluída"
@@ -5803,7 +5014,7 @@
     "/operations/vender-pacote": {
       "post": {
         "summary": "vender-pacote",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5836,7 +5047,7 @@
     "/operations/agendar": {
       "post": {
         "summary": "agendar",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5869,7 +5080,7 @@
     "/operations/reagendar": {
       "post": {
         "summary": "reagendar",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5902,7 +5113,7 @@
     "/operations/status-agenda": {
       "post": {
         "summary": "status-agenda",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5935,7 +5146,7 @@
     "/operations/iniciar-atendimento": {
       "post": {
         "summary": "iniciar-atendimento",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5968,7 +5179,7 @@
     "/operations/concluir-atendimento": {
       "post": {
         "summary": "concluir-atendimento",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6001,7 +5212,7 @@
     "/operations/pagamento-avulso": {
       "post": {
         "summary": "pagamento-avulso",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6034,7 +5245,7 @@
     "/operations/receber-parcela": {
       "post": {
         "summary": "receber-parcela",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6067,7 +5278,7 @@
     "/operations/estornar-pagamento": {
       "post": {
         "summary": "estornar-pagamento",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6100,7 +5311,7 @@
     "/operations/cancelar-pagamento": {
       "post": {
         "summary": "cancelar-pagamento",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6133,7 +5344,7 @@
     "/operations/movimentar-estoque": {
       "post": {
         "summary": "movimentar-estoque",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6166,7 +5377,7 @@
     "/operations/pagar-comissao": {
       "post": {
         "summary": "pagar-comissao",
-        "description": "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "description": "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
         "requestBody": {
           "required": true,
           "content": {

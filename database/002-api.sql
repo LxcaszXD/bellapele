@@ -1,4 +1,4 @@
--- Extensões aditivas da migration 002; aplicadas no mesmo banco de 001-base.sql.
+-- Extensoes aditivas. Execute DEPOIS de BellaPelle-MySQL.sql, no mesmo banco.
 -- Nenhuma tabela clinica e apagada ou renomeada.
 CREATE TABLE IF NOT EXISTS SessaoCliente (
  token_hash CHAR(64) PRIMARY KEY,

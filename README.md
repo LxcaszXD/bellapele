@@ -26,7 +26,7 @@ Para exemplos fictícios (somente banco vazio):
 docker compose --profile tools run --rm -e ALLOW_DEMO_SEED=true setup node scripts/seed.mjs
 ```
 
-O seed cria registros de demonstração para clientes, equipe, procedimentos, agenda, financeiro, estoque, avaliações e conteúdo público. São três profissionais com fotos distintas; endereços e históricos são sintéticos e os e-mails usam o domínio reservado `.test`. Contato, WhatsApp, endereço institucional, CNPJ e política oficial permanecem vazios. O script recusa tabelas de negócio já preenchidas e também recusa execução com `NODE_ENV=production`. As senhas das contas de demonstração são aleatórias e ficam em `DEMO_PASSWORD` no `.env`; use `cliente01@example.test` ou `usuario.demo01@example.test`. O administrador é criado separadamente com `ADMIN_EMAIL` e `ADMIN_PASSWORD`. Sessões, tokens, limites de acesso, fila de e-mail e fotos clínicas privadas continuam vazios.
+O seed cria 10 registros fictícios nas tabelas de negócio com múltiplas linhas (inclui procedimentos, equipe, clientes, agendamentos, pagamentos, avaliações, blog e rotinas administrativas). Para testar contas de demonstração, use `cliente1@example.com` ou `usuario.demo01@example.com` e a senha `BellaPelleDemo2026!`. O administrador real continua sendo o definido por `ADMIN_EMAIL` e `ADMIN_PASSWORD`. Configurações que são linhas únicas permanecem únicas; sessões, tokens, limites de acesso, fila de e-mail e fotos clínicas privadas ficam vazios por segurança e por dependerem de eventos reais.
 
 Para acompanhar erros:
 
@@ -69,10 +69,10 @@ Nenhum atendimento é concluído sem anamnese. Procedimento que exige foto deman
 - `app/admin`, `components/admin`: painel, formulários, calendário, relatórios e fotos.
 - `app/api/clinic/[...path]`: autenticação, CSRF, dispatch e erros HTTP.
 - `lib/clinic`: permissões, segurança, catálogo, CRUD, operações transacionais e relatórios.
-- `database/001-base.sql` a `008-receipt-method.sql`: uma cadeia sequencial que cria e atualiza o único banco principal configurado em `MYSQL_DATABASE`/`DATABASE_URL` (por padrão, `bellapelle_modelo`). O banco `_test` é isolado e usado somente quando os testes de integração são executados.
-- `database/demo.sql`: dados sintéticos opcionais; `scripts/seed.mjs` exige confirmação, verifica as tabelas de negócio e gera CPFs válidos para teste e credenciais locais aleatórias.
+- `database/001-base.sql` a `008-receipt-method.sql`: migrations versionadas (conteúdo público, contato institucional, política de privacidade e forma de pagamento por recebimento).
+- `database/demo.sql`: 10 conjuntos de dados fictícios opcionais; `scripts/seed.mjs` gera CPFs válidos de teste, ativa credenciais exclusivamente de demonstração e complementa disponibilidade semanal.
 - `tests`: regras, segurança, integração MySQL, HTTP e Playwright.
-- `docs`: instruções de operação, modelo de dados, contratos da API e pendências conhecidas.
+- `docs`: contratos, auditoria, modelo, instruções e resultados.
 
 ## Redesign e cobertura dos dados
 
@@ -130,7 +130,7 @@ O E2E cria um cliente: rode sobre banco de teste recém-preparado. A pipeline in
 
 ## API e produção
 
-Contrato em `docs/CONTRATO-API.md`, inventário OpenAPI em `docs/openapi.json`. Mutações exigem cookie de sessão, Origin correspondente a `APP_ORIGIN` e header `X-CSRF-Token` retornado no login/session. Sessões expiram após 8 horas e são invalidadas no logout/alteração de usuário.
+Contrato em `docs/CONTRATO-V4.md`, inventário OpenAPI em `docs/openapi.json`. Mutações exigem cookie de sessão, Origin correspondente a `APP_ORIGIN` e header `X-CSRF-Token` retornado no login/session. Sessões expiram após 8 horas e são invalidadas no logout/alteração de usuário.
 
 Use HTTPS e `APP_ORIGIN` com URL HTTPS em produção; os cookies passam a incluir Secure. Configure proxy reverso, backups criptografados do MySQL e fotos, restauração testada e acesso restrito à infraestrutura. Não exponha a porta MySQL publicamente. Recuperação de senha grava mensagens em `EmailOutbox`; o envio de e-mail externo ainda precisa de integração e credenciais. Não há cobrança PIX/cartão externa, SMS ou WhatsApp integrado.
 

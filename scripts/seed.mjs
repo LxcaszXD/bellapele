@@ -5,17 +5,11 @@ if (process.env.ALLOW_DEMO_SEED !== "true")
   throw Error(
     "Defina ALLOW_DEMO_SEED=true exclusivamente num banco de demonstração vazio.",
   );
-if (process.env.NODE_ENV === "production")
-  throw Error("O seed de demonstração não pode ser executado em produção.");
-if (!process.env.DATABASE_URL)
-  throw Error("Defina DATABASE_URL para a base local de demonstração.");
-const demoPassword = process.env.DEMO_PASSWORD;
-if (!demoPassword || demoPassword.length < 12 || demoPassword.length > 128)
-  throw Error("Configure DEMO_PASSWORD (12 a 128 caracteres) no ambiente local.");
 const c = await mysql.createConnection({
   uri: process.env.DATABASE_URL,
   multipleStatements: true,
 });
+const demoPassword = "BellaPelleDemo2026!";
 const passwordHash = async () => {
   const salt = randomBytes(16).toString("hex");
   const key = await new Promise((resolve, reject) =>
@@ -42,33 +36,10 @@ function demoCpf(index) {
   return digits.join("");
 }
 try {
-  const demoTables = [
-    "Cliente", "Profissional", "Procedimento", "Sala", "Equipamento",
-    "ProfissionalProcedimento", "Anamnese", "Pacote", "PacoteCliente",
-    "Agendamento", "Atendimento", "Produto", "ProdutoAplicado",
-    "MovimentacaoEstoque", "Pagamento", "Parcela", "Favorito", "Avaliacao",
-    "AgendaConfiguracao", "Auditoria", "Disponibilidade", "Bloqueio",
-    "EventoAgenda", "ConsumoSessao", "Comissao", "Recebimento",
-    "HistoricoPreco", "Usuario", "AuditoriaSeguranca", "ContaCliente",
-    "AuditoriaCliente", "VinculoClinico", "PedidoPrivacidade", "BlogPost",
-  ];
-  const [[schema]] = await c.query("SELECT DATABASE() AS name");
-  if (!schema?.name)
-    throw Error("DATABASE_URL precisa apontar para um banco MySQL específico.");
-  const [[tableRows]] = await c.query(
-    "SELECT COUNT(*) AS total FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME IN (?)",
-    [demoTables],
-  );
-  if (Number(tableRows.total) !== demoTables.length)
-    throw Error("Execute npm run db:migrate antes de carregar o seed.");
-  const occupied = [];
-  for (const table of demoTables) {
-    const [[count]] = await c.query(`SELECT COUNT(*) AS total FROM \`${table}\``);
-    if (Number(count.total) > 0) occupied.push(`${table} (${count.total})`);
-  }
-  if (occupied.length)
+  const [[row]] = await c.query("SELECT COUNT(*) n FROM Cliente");
+  if (row.n)
     throw Error(
-      `Seed recusado: as tabelas de demonstração precisam estar vazias. Encontrados dados em: ${occupied.join(", ")}. Nenhuma alteração foi feita.`,
+      "Seed recusado: já existem clientes; nenhum dado foi alterado.",
     );
   await c.query("SET time_zone='+00:00'");
   await c.query(
@@ -91,15 +62,23 @@ try {
       "INSERT INTO Disponibilidade(id_profissional,dia_semana,hora_inicio,hora_fim) SELECT id_profissional,?,'08:00:00','19:00:00' FROM Profissional",
       [d],
     );
-  const minimumRows = { Profissional: 3, Usuario: 6 };
+  const demoTables = [
+    "Cliente", "Profissional", "Procedimento", "Sala", "Equipamento",
+    "ProfissionalProcedimento", "Anamnese", "Pacote", "PacoteCliente",
+    "Agendamento", "Atendimento", "Produto", "ProdutoAplicado",
+    "MovimentacaoEstoque", "Pagamento", "Parcela", "Favorito", "Avaliacao",
+    "AgendaConfiguracao", "Auditoria", "Disponibilidade", "Bloqueio",
+    "EventoAgenda", "ConsumoSessao", "Comissao", "Recebimento",
+    "HistoricoPreco", "Usuario", "AuditoriaSeguranca", "ContaCliente",
+    "AuditoriaCliente", "VinculoClinico", "PedidoPrivacidade", "BlogPost",
+  ];
   for (const table of demoTables) {
     const [[count]] = await c.query(`SELECT COUNT(*) AS total FROM \`${table}\``);
-    const minimum = minimumRows[table] ?? 10;
-    if (Number(count.total) < minimum)
-      throw Error(`Seed incompleto: ${table} precisa ter ao menos ${minimum} registros.`);
+    if (Number(count.total) < 10)
+      throw Error(`Seed incompleto: ${table} tem menos de 10 registros.`);
   }
   console.log(
-    "Dados fictícios carregados. Use DEMO_PASSWORD do ambiente local para acessar contas de demonstração. As tabelas de sessão, tokens, limite de acesso, e-mail e fotos clínicas continuam vazias por segurança.",
+    `10 conjuntos de dados fictícios carregados. Login de clientes e usuários demo: senha ${demoPassword}. As tabelas de sessão, tokens, limite de acesso, e-mail e fotos clínicas continuam vazias por segurança.`,
   );
 } finally {
   await c.end();

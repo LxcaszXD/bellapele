@@ -106,7 +106,7 @@ for (const name of [
     post: {
       summary: name,
       description:
-        "Contrato dos campos em docs/CONTRATO-API.md. Operação transacional.",
+        "Contrato dos campos em docs/CONTRATO-V4.md. Operação transacional.",
       requestBody: {
         required: true,
         content: { "application/json": { schema: { type: "object" } } },

@@ -8,6 +8,6 @@ O projeto atual usa um único site público em `/` e o dashboard em `/admin`. O 
 - **Dados reais:** homologar migração em cópia protegida, backup/restauração e acesso aos arquivos privados antes de implantação. Não aplicar sobre produção sem revisão do estado das migrations.
 - **Segurança/LGPD:** definir responsáveis, base legal, retenção e atendimento das solicitações. Há controles técnicos, mas não se afirma conformidade jurídica plena. Não há anonimização automática de prontuário com histórico relacionado.
 - **Cobertura:** os testes priorizam os fluxos de maior risco. Falta cobertura E2E exaustiva de todos os formulários, fotos, concessão/revogação de permissões e erros de rede, auditoria WCAG completa, carga e pentest.
-- **Documentação da API:** OpenAPI descreve recursos e operações; contratos complementares estão em CONTRATO-API e PORTAL-API. Schemas detalhados de todas as respostas e payloads especiais ainda podem ser ampliados.
+- **Documentação da API:** OpenAPI descreve recursos e operações; contratos complementares estão em CONTRATO-V4 e PORTAL-API. Schemas detalhados de todas as respostas e payloads especiais ainda podem ser ampliados.
 
 PIX/cartão são métodos de registro financeiro interno. Integração de cobrança externa não faz parte da entrega sem provedor/credenciais e não é apresentada como concluída.

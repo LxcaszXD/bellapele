@@ -1,6 +1,6 @@
 # Modelo lógico e físico
 
-O banco oficial da aplicação é `bellapelle_modelo`. O esquema físico canônico é aplicado nesse único banco pela cadeia sequencial `database/001-base.sql` a `database/008-receipt-method.sql`; `database/demo.sql` contém apenas dados de demonstração e não faz parte das migrations. Todos os identificadores principais são inteiros unsigned, com FKs e índices de relacionamento. Valores financeiros são DECIMAL; quantidades usam três casas. Todas as tabelas de negócio permanecem em InnoDB.
+DDL físico canônico: `database/001-base.sql`, `002-api.sql`, `003-clinic.sql`, `004-security.sql`. Todos os identificadores principais são inteiros unsigned, com FKs e índices de relacionamento. Valores financeiros são DECIMAL; quantidades usam três casas. Todas as tabelas de negócio permanecem em InnoDB.
 
 ## Divergências do DER original
 
