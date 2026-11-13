@@ -51,7 +51,28 @@ const reportNames = [
   "estoque",
   "produtos",
 ];
-function Table({ items, onEdit }: { items: Row[]; onEdit?: (r: Row) => void }) {
+const reportLabels: Record<string, string> = {
+  faturamento: "Faturamento",
+  pagamentos: "Pagamentos",
+  comissoes: "Comissões",
+  atendimentos: "Atendimentos",
+  procedimentos: "Procedimentos",
+  pacotes: "Pacotes",
+  vencimentos: "Vencimentos",
+  sessoes: "Sessões",
+  faltas: "Faltas",
+  estoque: "Estoque",
+  produtos: "Produtos",
+};
+function Table({
+  items,
+  onEdit,
+  primaryKey,
+}: {
+  items: Row[];
+  onEdit?: (r: Row) => void;
+  primaryKey?: string;
+}) {
   if (!items.length)
     return (
       <div className="admin-empty">
@@ -60,7 +81,24 @@ function Table({ items, onEdit }: { items: Row[]; onEdit?: (r: Row) => void }) {
         <p>Ajuste os filtros ou cadastre o primeiro registro.</p>
       </div>
     );
-  const keys = Object.keys(items[0]);
+  const keys = Object.keys(items[0]).filter((key) => {
+    if (!key.startsWith("id_") || key === primaryKey) return true;
+    const namedRelations: Record<string, string> = {
+      id_cliente: "cliente_nome",
+      id_profissional: "profissional_nome",
+      id_procedimento: "procedimento_nome",
+      id_sala: "sala_nome",
+      id_pacote_cliente: "pacote_nome",
+    };
+    const namedField = namedRelations[key];
+    if (namedField && items[0][namedField]) return false;
+    if (
+      (key === "id_agendamento" || key === "id_pacote_cliente") &&
+      items[0].destino
+    )
+      return false;
+    return true;
+  });
   return (
     <div className="admin-table-wrap">
       <table>
@@ -76,7 +114,17 @@ function Table({ items, onEdit }: { items: Row[]; onEdit?: (r: Row) => void }) {
           {items.map((r, i) => (
             <tr key={i}>
               {keys.map((k) => (
-                <td key={k}>{display(r[k], k)}</td>
+                <td key={k}>
+                  {k === "ativo" || k.includes("status") ? (
+                    <span
+                      className={`admin-state admin-state-${String(r[k] ?? "").toLocaleLowerCase("pt-BR").replaceAll("_", "-")}`}
+                    >
+                      {display(r[k], k)}
+                    </span>
+                  ) : (
+                    display(r[k], k)
+                  )}
+                </td>
               ))}
               {onEdit && (
                 <td>
@@ -90,121 +138,6 @@ function Table({ items, onEdit }: { items: Row[]; onEdit?: (r: Row) => void }) {
         </tbody>
       </table>
     </div>
-  );
-}
-function Login({ onLogin }: { onLogin: (s: Session) => void }) {
-  const [mode, setMode] = useState("login"),
-    [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
-    [resetToken, setResetToken] = useState("");
-  useEffect(() => {
-    const token = new URLSearchParams(location.search).get("reset");
-    if (token) {
-      setMode("reset");
-      setResetToken(token);
-      history.replaceState(null, "", "/admin");
-    }
-  }, []);
-  return (
-    <main className="admin-login">
-      <section>
-        <div className="admin-logo">
-          <Flower2 /> BellaPelle
-        </div>
-        <span className="admin-eyebrow">GESTÃO DA CLÍNICA</span>
-        <h1>Cuidado em cada detalhe.</h1>
-        <p>
-          Um espaço para organizar sua clínica e dedicar mais tempo às pessoas.
-        </p>
-        <div className="admin-login-decoration" aria-hidden="true">
-          B
-        </div>
-      </section>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setBusy(true);
-          setError("");
-          const f = new FormData(e.currentTarget);
-          try {
-            if (mode === "login")
-              onLogin(
-                await request<Session>("auth/login", "POST", {
-                  email: f.get("email"),
-                  password: f.get("password"),
-                }),
-              );
-            else {
-              const r = await request<{ message: string }>(
-                `auth/${mode}`,
-                "POST",
-                mode === "forgot"
-                  ? { email: f.get("email") }
-                  : { token: resetToken, password: f.get("password") },
-              );
-              setError(r.message);
-            }
-          } catch (err) {
-            setError((err as Error).message);
-          } finally {
-            setBusy(false);
-          }
-        }}
-      >
-        <Flower2 className="admin-accent" size={34} />
-        <h2>
-          {mode === "login"
-            ? "Bem-vinda à BellaPelle"
-            : mode === "forgot"
-              ? "Recuperar acesso"
-              : "Criar nova senha"}
-        </h2>
-        <p>Use suas credenciais para acessar o sistema.</p>
-        {mode !== "reset" && (
-          <label>
-            E-mail
-            <input name="email" type="email" autoComplete="username" required />
-          </label>
-        )}
-        {mode !== "forgot" && (
-          <label>
-            Senha
-            <input
-              name="password"
-              type="password"
-              autoComplete={
-                mode === "reset" ? "new-password" : "current-password"
-              }
-              minLength={mode === "reset" ? 12 : 1}
-              required
-            />
-          </label>
-        )}
-        {error && (
-          <p role="alert" className="admin-notice">
-            {error}
-          </p>
-        )}
-        <button className="admin-primary" disabled={busy}>
-          {busy
-            ? "Aguarde…"
-            : mode === "login"
-              ? "Entrar"
-              : mode === "forgot"
-                ? "Solicitar recuperação"
-                : "Salvar senha"}
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "login" ? "forgot" : "login");
-            setError("");
-          }}
-        >
-          {mode === "login" ? "Esqueci minha senha" : "Voltar ao login"}
-        </button>
-      </form>
-    </main>
   );
 }
 export default function AdminApp() {
@@ -234,7 +167,9 @@ export default function AdminApp() {
     [direction, setDirection] = useState("desc"),
     [status, setStatus] = useState(""),
     [professionalFilter, setProfessionalFilter] = useState(""),
-    [procedureFilter, setProcedureFilter] = useState("");
+    [procedureFilter, setProcedureFilter] = useState(""),
+    [professionalOptions, setProfessionalOptions] = useState<Row[]>([]),
+    [procedureOptions, setProcedureOptions] = useState<Row[]>([]);
   const api: Api = useCallback(
     (path, method = "GET", body) =>
       request(path, method, body, session?.csrfToken),
@@ -251,6 +186,23 @@ export default function AdminApp() {
       .catch(() => {})
       .finally(() => setReady(true));
   }, []);
+  useEffect(() => {
+    if (!session) return;
+    if (page !== "reports") return;
+    let active = true;
+    Promise.all([
+      api<{ items: Row[] }>("profissionais?pageSize=100&sort=nome&direction=asc"),
+      api<{ items: Row[] }>("procedimentos?pageSize=100&sort=nome&direction=asc"),
+    ])
+      .then(([professionals, procedures]) => {
+        if (active) {
+          setProfessionalOptions(professionals.items);
+          setProcedureOptions(procedures.items);
+        }
+      })
+      .catch((e) => active && setError((e as Error).message));
+    return () => { active = false; };
+  }, [session, page, api]);
   useEffect(() => {
     if (!session) return;
     api<{ resources: Resource[] }>("meta")
@@ -348,17 +300,25 @@ export default function AdminApp() {
   };
   if (!ready)
     return (
-      <main className="admin-loading" role="status">
+      <main className="admin-loading admin-loading-full" role="status">
         Carregando BellaPelle…
       </main>
     );
-  if (!session) return <Login onLogin={setSession} />;
+  if (!session)
+    return (
+      <main className="admin-login-gate">
+        <img src="/images/logo-bellapelle.png" alt="BellaPelle" />
+        <h1>Acesso da equipe</h1>
+        <p>Entre com seu e-mail e senha pelo acesso do site. O sistema identifica automaticamente seu perfil.</p>
+        <a className="admin-primary" href="/?acesso=login">Abrir login da equipe</a>
+        <a href="/">Voltar ao site</a>
+      </main>
+    );
   return (
     <div className="admin-shell">
       <aside className={menu ? "open" : ""}>
         <a className="admin-logo" href="/admin">
-          <Flower2 />
-          BellaPelle
+          <img src="/images/logo-bellapelle.png" alt="BellaPelle" />
         </a>
         <span className="admin-eyebrow">ESPAÇO DE GESTÃO</span>
         <nav aria-label="Módulos">
@@ -401,7 +361,7 @@ export default function AdminApp() {
         <p className="admin-sidebar-foot">BellaPelle · Gestão integrada</p>
       </aside>
       <div className="admin-workspace">
-        <header className="admin-topbar">
+        <header className="admin-topbar" data-motion="rise">
           <button
             className="admin-menu"
             aria-label="Abrir navegação"
@@ -434,7 +394,7 @@ export default function AdminApp() {
             </button>
           </div>
         </header>
-        <main className="admin-main">
+        <main className="admin-main" data-motion="rise">
           <span className="admin-eyebrow">SEU DIA, MAIS ORGANIZADO</span>
           <div className="admin-title">
             <div>
@@ -453,7 +413,7 @@ export default function AdminApp() {
                   : "Informações integradas para uma rotina mais tranquila."}
               </p>
             </div>
-            {resource?.writable && (
+            {resource?.writable && !resource.singleton && (
               <button className="admin-primary" onClick={() => setEdit({})}>
                 <Plus size={17} />
                 Novo registro
@@ -500,7 +460,7 @@ export default function AdminApp() {
           {page === "agendamentos" && (
             <Calendar api={api} revision={revision} onSelect={setEdit} />
           )}
-          <section className="admin-panel">
+          <section className="admin-panel" data-motion="scale">
             <div className="admin-toolbar">
               {page !== "dashboard" && page !== "reports" && (
                 <label className="admin-search">
@@ -560,22 +520,24 @@ export default function AdminApp() {
               {page === "reports" && (
                 <>
                   <label>
-                    Profissional (ID)
-                    <input
-                      type="number"
-                      min="1"
+                    Profissional
+                    <select
                       value={professionalFilter}
-                      onChange={(e) => setProfessionalFilter(e.target.value)}
-                    />
+                      onChange={(e) => { setProfessionalFilter(e.target.value); setCurrent(1); }}
+                    >
+                      <option value="">Todos os profissionais</option>
+                      {professionalOptions.map((p) => <option key={String(p.id_profissional)} value={String(p.id_profissional)}>{String(p.nome)}</option>)}
+                    </select>
                   </label>
                   <label>
-                    Procedimento (ID)
-                    <input
-                      type="number"
-                      min="1"
+                    Procedimento
+                    <select
                       value={procedureFilter}
-                      onChange={(e) => setProcedureFilter(e.target.value)}
-                    />
+                      onChange={(e) => { setProcedureFilter(e.target.value); setCurrent(1); }}
+                    >
+                      <option value="">Todos os procedimentos</option>
+                      {procedureOptions.map((p) => <option key={String(p.id_procedimento)} value={String(p.id_procedimento)}>{String(p.nome)}</option>)}
+                    </select>
                   </label>
                   <button onClick={() => window.print()}>
                     Imprimir / salvar PDF
@@ -590,7 +552,7 @@ export default function AdminApp() {
                     onChange={(e) => setKind(e.target.value)}
                   >
                     {reportNames.map((n) => (
-                      <option key={n}>{n}</option>
+                      <option key={n} value={n}>{reportLabels[n] || n}</option>
                     ))}
                   </select>
                 </label>
@@ -666,9 +628,27 @@ export default function AdminApp() {
               </div>
             ) : page === "dashboard" ? (
               <>
-                <div className="admin-stats">
+                <div
+                  className="admin-journey"
+                  aria-label="Fluxo de atendimento"
+                >
+                  {[
+                    ["clientes", "1 · Cliente", "Cadastro e histórico"],
+                    ["anamneses", "2 · Avaliação", "Anamnese e cuidados"],
+                    ["agendamentos", "3 · Agenda", "Horários e confirmação"],
+                    ["atendimentos", "4 · Atendimento", "Evolução e conclusão"],
+                  ]
+                    .filter(([key]) => resources.some((r) => r.key === key))
+                    .map(([key, title, description]) => (
+                      <button key={key} onClick={() => navigate(key)}>
+                        <strong>{title}</strong>
+                        <small>{description}</small>
+                      </button>
+                    ))}
+                </div>
+                <div className="admin-stats" data-motion="rise">
                   {Object.entries(stats).map(([k, v]) => (
-                    <article key={k}>
+                    <article key={k} data-motion="scale">
                       <span>{label(k)}</span>
                       <strong>{display(v, k)}</strong>
                       <small>Dados do banco da clínica</small>
@@ -682,6 +662,7 @@ export default function AdminApp() {
                   className="admin-chart"
                   role="img"
                   aria-label="Atendimentos por procedimento"
+                  data-motion="rise"
                 >
                   {items.map((r, i) => (
                     <div key={i}>
@@ -698,13 +679,14 @@ export default function AdminApp() {
                     </div>
                   ))}
                 </div>
-                <Table items={items} />
+                <Table items={items} primaryKey={resource?.pk} />
               </>
             ) : (
               <>
                 <Table
                   items={items}
                   onEdit={resource || page === "users" ? setEdit : undefined}
+                  primaryKey={resource?.pk}
                 />
                 {page !== "reports" && (
                   <footer className="admin-pagination">
@@ -761,12 +743,28 @@ export default function AdminApp() {
             />
           ) : (
             <dl className="admin-details">
-              {Object.entries(edit).map(([k, v]) => (
+              {Object.entries(edit)
+                .filter(([k]) => {
+                  const relationName: Record<string, string> = {
+                    id_cliente: "cliente_nome",
+                    id_profissional: "profissional_nome",
+                    id_procedimento: "procedimento_nome",
+                    id_sala: "sala_nome",
+                    id_pacote_cliente: "pacote_nome",
+                  };
+                  if (k === resource.pk || !k.startsWith("id_")) return true;
+                  if (relationName[k] && edit[relationName[k]]) return false;
+                  return !(
+                    (k === "id_agendamento" || k === "id_pacote_cliente") &&
+                    edit.destino
+                  );
+                })
+                .map(([k, v]) => (
                 <div key={k}>
                   <dt>{label(k)}</dt>
                   <dd>{display(v, k)}</dd>
                 </div>
-              ))}
+                ))}
             </dl>
           )}
           {page === "clientes" && Boolean(edit.id_cliente) && (

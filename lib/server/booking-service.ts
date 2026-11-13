@@ -16,6 +16,9 @@ export const paymentFromDB = (p: string) =>
     dinheiro: "Dinheiro",
   })[p] ?? "Não definido";
 export function mapBooking(r: RowDataPacket) {
+  const localEnd = new Date(
+    Date.parse(String(r.data_hora_fim).replace(" ", "T") + "Z"),
+  );
   return {
     id: String(r.id_agendamento),
     treatmentId: Number(r.id_procedimento),
@@ -36,12 +39,30 @@ export function mapBooking(r: RowDataPacket) {
     specialistName: r.profissional,
     specialistId: Number(r.id_profissional),
     paymentStatus: r.payment_status ?? "pendente",
+    treatmentName: r.procedimento,
+    roomName: r.sala || "Sala a definir",
+    endTime: new Intl.DateTimeFormat("en-GB", {
+      timeZone: "America/Sao_Paulo",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).format(localEnd),
+    paymentAmount: Number(r.payment_amount ?? 0),
+    amountReceived: Number(r.amount_received ?? 0),
+    paymentDate: r.payment_date ?? null,
+    paymentMethod: paymentFromDB(r.forma_pagamento),
+    receiptMethod: r.receipt_method ? paymentFromDB(r.receipt_method) : null,
   };
 }
 export const bookingSelect = `SELECT a.*,TIMESTAMPDIFF(MINUTE,a.data_hora_inicio,a.data_hora_fim) AS duration,pr.nome AS profissional,
- (SELECT p.forma_pagamento FROM Pagamento p WHERE p.id_agendamento=a.id_agendamento ORDER BY p.id_pagamento DESC LIMIT 1) AS forma_pagamento,
- (SELECT p.status FROM Pagamento p WHERE p.id_agendamento=a.id_agendamento ORDER BY p.id_pagamento DESC LIMIT 1) AS payment_status
- FROM Agendamento a JOIN Profissional pr ON pr.id_profissional=a.id_profissional`;
+ p.nome AS procedimento,s.nome AS sala,
+ COALESCE((SELECT p.forma_pagamento FROM Pagamento p WHERE p.id_agendamento=a.id_agendamento ORDER BY p.id_pagamento DESC LIMIT 1),(SELECT p.forma_pagamento FROM Pagamento p WHERE a.id_pacote_cliente IS NOT NULL AND p.id_pacote_cliente=a.id_pacote_cliente ORDER BY p.id_pagamento DESC LIMIT 1)) AS forma_pagamento,
+ COALESCE((SELECT p.status FROM Pagamento p WHERE p.id_agendamento=a.id_agendamento ORDER BY p.id_pagamento DESC LIMIT 1),pc.status_pagamento,'pendente') AS payment_status,
+ COALESCE((SELECT p.valor_total FROM Pagamento p WHERE p.id_agendamento=a.id_agendamento ORDER BY p.id_pagamento DESC LIMIT 1),pc.valor_contratado,0) AS payment_amount,
+ (SELECT COALESCE(SUM(pa.valor_recebido),0) FROM Pagamento p JOIN Parcela pa ON pa.id_pagamento=p.id_pagamento WHERE p.id_agendamento=a.id_agendamento OR (a.id_pacote_cliente IS NOT NULL AND p.id_pacote_cliente=a.id_pacote_cliente)) AS amount_received,
+ (SELECT MAX(r.data) FROM Pagamento p JOIN Parcela pa ON pa.id_pagamento=p.id_pagamento JOIN Recebimento r ON r.id_parcela=pa.id_parcela AND r.tipo='recebimento' WHERE p.id_agendamento=a.id_agendamento OR (a.id_pacote_cliente IS NOT NULL AND p.id_pacote_cliente=a.id_pacote_cliente)) AS payment_date,
+ (SELECT r.forma_pagamento FROM Pagamento p JOIN Parcela pa ON pa.id_pagamento=p.id_pagamento JOIN Recebimento r ON r.id_parcela=pa.id_parcela AND r.tipo='recebimento' WHERE p.id_agendamento=a.id_agendamento OR (a.id_pacote_cliente IS NOT NULL AND p.id_pacote_cliente=a.id_pacote_cliente) ORDER BY r.id_recebimento DESC LIMIT 1) AS receipt_method
+ FROM Agendamento a JOIN Profissional pr ON pr.id_profissional=a.id_profissional JOIN Procedimento p ON p.id_procedimento=a.id_procedimento LEFT JOIN Sala s ON s.id_sala=a.id_sala LEFT JOIN PacoteCliente pc ON pc.id_pacote_cliente=a.id_pacote_cliente`;
 export async function config(conn: PoolConnection, id: number) {
   const [rows] = await conn.execute<RowDataPacket[]>(
     `SELECT c.*,p.valor_avulso,p.duracao_minutos,pr.nome AS profissional FROM AgendaConfiguracao c JOIN Procedimento p ON p.id_procedimento=c.id_procedimento JOIN Profissional pr ON pr.id_profissional=c.id_profissional WHERE c.id_procedimento=?`,

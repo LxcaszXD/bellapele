@@ -21,7 +21,7 @@ test("fluxo mobile: busca, favorito persistente, reserva, reagendamento e cancel
   await expect(
     page.getByRole("heading", { name: "Cuide de você hoje" }),
   ).toBeVisible();
-  await snapshot("docs/preview-inicio.png");
+  await snapshot("test-results/previews/inicio.png");
   await page
     .getByRole("button", { name: "Busque tratamentos ou especialistas" })
     .click();
@@ -40,28 +40,28 @@ test("fluxo mobile: busca, favorito persistente, reserva, reagendamento e cancel
       name: "Remover Hidratação facial premium dos favoritos",
     }),
   ).toBeVisible();
-  await snapshot("docs/preview-busca.png");
+  await snapshot("test-results/previews/busca.png");
   await page
     .getByRole("button", { name: /Hidratação facial premium Limpeza/ })
     .click();
   await expect(
     page.getByRole("button", { name: "11:00", exact: true }),
   ).toBeEnabled();
-  await snapshot("docs/preview-tratamento.png");
+  await snapshot("test-results/previews/tratamento.png");
   await page
     .getByRole("button", { name: "Agendar horário", exact: true })
     .click();
   await expect(
     page.getByRole("button", { name: "Confirmar agendamento", exact: true }),
   ).toBeEnabled();
-  await snapshot("docs/preview-confirmacao.png");
+  await snapshot("test-results/previews/confirmacao.png");
   await page
     .getByRole("button", { name: "Confirmar agendamento", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Agendamento confirmado!" }),
   ).toBeVisible();
-  await snapshot("docs/preview-sucesso.png");
+  await snapshot("test-results/previews/sucesso.png");
   await page
     .getByRole("button", { name: "Ver meus agendamentos", exact: true })
     .click();
@@ -69,7 +69,7 @@ test("fluxo mobile: busca, favorito persistente, reserva, reagendamento e cancel
   await expect(
     page.getByRole("button", { name: "Reagendar", exact: true }),
   ).toBeVisible();
-  await snapshot("docs/preview-agendamentos.png");
+  await snapshot("test-results/previews/agendamentos.png");
   await page.getByRole("button", { name: "Reagendar", exact: true }).click();
   await page.getByRole("button", { name: "14:30", exact: true }).click();
   await page.getByRole("button", { name: "Reagendar horário" }).click();
@@ -107,7 +107,7 @@ test("fluxo mobile: busca, favorito persistente, reserva, reagendamento e cancel
     price: 100,
     rating: 5,
     reviews: 1,
-    image: "/images/facial-card.jpg",
+    image: "/images/bellapelle-facial-new.webp",
     specialistName: "Paula Mendes",
     specialistId: 4,
     experience: 5,

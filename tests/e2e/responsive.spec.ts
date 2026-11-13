@@ -39,7 +39,7 @@ test("layouts responsivos e fluxo completo em oito larguras", async ({
       ),
     { future },
   );
-  await mkdir("docs/responsive", { recursive: true });
+  await mkdir("test-results/responsive", { recursive: true });
   for (const [width, height] of [
     [320, 812],
     [390, 844],
@@ -62,7 +62,7 @@ test("layouts responsivos e fluxo completo em oito larguras", async ({
       ).toBeLessThanOrEqual(width);
       if ([390, 768, 1366, 1440].includes(width))
         await page.screenshot({
-          path: `docs/responsive/${width}-${screen}.png`,
+          path: `test-results/responsive/${width}-${screen}.png`,
           fullPage: true,
         });
     }

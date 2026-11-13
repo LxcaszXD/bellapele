@@ -1,8 +1,8 @@
-# BellaPelle — gestão da clínica (v5)
+# BellaPelle — site público e gestão da clínica
 
-Continuação da versão responsiva v3. Aplicação administrativa em Next.js App Router, React, TypeScript strict, Tailwind v4, Node.js e MySQL 8.4. A API REST é implementada nos Route Handlers do Next e organizada em serviços de domínio. Mantém mysql2 e Zod do projeto original, sem adicionar outro servidor HTTP ou ORM desnecessariamente.
+Site público responsivo com dashboard administrativo, desenvolvido em Next.js App Router, React, TypeScript strict, Tailwind v4, Node.js e MySQL 8.4. A API REST é implementada nos Route Handlers do Next e organizada em serviços de domínio. Mantém mysql2 e Zod do projeto original, sem adicionar outro servidor HTTP ou ORM desnecessariamente.
 
-**Estado da entrega:** continuação integrada com portal individual de clientes. Consulte `docs/VALIDACAO-V5.md` para resultados efetivamente executados e `docs/PENDENCIAS.md` para limites do aceite. Não há processamento externo de cobranças PIX/cartão.
+**Estado da entrega:** o site público único está em `/`, com conteúdo do catálogo, equipe, avaliações autorizadas e blog carregado do MySQL. O dashboard administrativo fica em `/admin`; a antiga rota `/portal` redireciona para `/`. Não há processamento externo de cobranças PIX/cartão.
 
 ## Início rápido no Windows com Docker Desktop
 
@@ -14,7 +14,7 @@ docker compose up --build -d
 docker compose --profile tools run --rm setup
 ```
 
-Abra **http://localhost:3000/admin**. O e-mail e a senha iniciais estão nos campos `ADMIN_EMAIL` e `ADMIN_PASSWORD` do arquivo `.env`, gerado localmente. O script cria senhas aleatórias; não há senha padrão compartilhada. Troque `ADMIN_EMAIL` pelo e-mail desejado antes de executar `setup`. Execute `setup` uma única vez: uma segunda execução informa duplicidade sem redefinir a senha existente.
+Abra **http://localhost:3000/** para navegar sem login ou **http://localhost:3000/admin** para a gestão da equipe. O e-mail e a senha iniciais estão nos campos `ADMIN_EMAIL` e `ADMIN_PASSWORD` do arquivo `.env`, gerado localmente. O script cria senhas aleatórias; não há senha padrão compartilhada. Troque `ADMIN_EMAIL` pelo e-mail desejado antes de executar `setup`. Execute `setup` uma única vez: uma segunda execução informa duplicidade sem redefinir a senha existente.
 
 `env:init` usa somente Node, portanto não requer instalar dependências antes do Docker. Ele não sobrescreve `.env` ou `.env.local` já existentes. Não publique esses arquivos nem os coloque no Git.
 
@@ -25,6 +25,8 @@ Para exemplos fictícios (somente banco vazio):
 ```powershell
 docker compose --profile tools run --rm -e ALLOW_DEMO_SEED=true setup node scripts/seed.mjs
 ```
+
+O seed cria registros de demonstração para clientes, equipe, procedimentos, agenda, financeiro, estoque, avaliações e conteúdo público. São três profissionais com fotos distintas; endereços e históricos são sintéticos e os e-mails usam o domínio reservado `.test`. Contato, WhatsApp, endereço institucional, CNPJ e política oficial permanecem vazios. O script recusa tabelas de negócio já preenchidas e também recusa execução com `NODE_ENV=production`. As senhas das contas de demonstração são aleatórias e ficam em `DEMO_PASSWORD` no `.env`; use `cliente01@example.test` ou `usuario.demo01@example.test`. O administrador é criado separadamente com `ADMIN_EMAIL` e `ADMIN_PASSWORD`. Sessões, tokens, limites de acesso, fila de e-mail e fotos clínicas privadas continuam vazios.
 
 Para acompanhar erros:
 
@@ -50,14 +52,15 @@ Se já gerou os arquivos de ambiente, não repita `env:init`. `.env.local` apont
 
 ## Fluxo de operação
 
-1. Administrador cadastra clientes, profissionais, procedimentos, salas, equipamentos e habilitações.
-2. Habilitações vinculam profissional, procedimento e percentual de comissão. Disponibilidade define os intervalos semanais; bloqueios registram manutenção/ausência.
-3. Anamneses são novas avaliações imutáveis. O profissional acessa clientes associados à sua agenda ou a Vínculos clínicos configurados pelo administrador.
-4. Financeiro vende um pacote em **Pacotes vendidos → Vender pacote**. Parcelas são criadas como pendentes. Não há cobrança externa automática.
-5. Recepção cria o agendamento selecionando cliente, profissional, procedimento, sala, equipamento e pacote opcional.
-6. O atendimento deve estar confirmado e com horário de início alcançado. Use **Iniciar atendimento**, registre fotos autorizadas se exigidas e conclua com os produtos/lotes utilizados.
-7. A conclusão baixa sessão e estoque e gera comissão em uma única transação. Repetir a conclusão retorna o mesmo atendimento.
-8. Registre recebimentos em **Parcelas**. Para avulso, crie a cobrança em **Pagamentos → Cobrança avulsa**. Comissões só podem ser pagas após recebimento integral.
+1. Qualquer visitante navega pelo site público. O login só é solicitado ao agendar ou acessar dados pessoais; a mesma modal identifica cliente ou administrador automaticamente.
+2. Administrador cadastra clientes, profissionais, procedimentos, salas, equipamentos e habilitações.
+3. Habilitações vinculam profissional, procedimento e percentual de comissão. Disponibilidade define os intervalos semanais; bloqueios registram manutenção/ausência.
+4. Anamneses são novas avaliações imutáveis. O profissional acessa clientes associados à sua agenda ou a Vínculos clínicos configurados pelo administrador.
+5. Financeiro vende um pacote em **Pacotes vendidos → Vender pacote**. Parcelas são criadas como pendentes. Não há cobrança externa automática.
+6. Recepção cria o agendamento selecionando cliente, profissional, procedimento, sala, equipamento e pacote opcional.
+7. O atendimento deve estar confirmado e com horário de início alcançado. Use **Iniciar atendimento**, registre fotos autorizadas se exigidas e conclua com os produtos/lotes utilizados.
+8. A conclusão baixa sessão e estoque e gera comissão em uma única transação. Repetir a conclusão retorna o mesmo atendimento.
+9. Registre recebimentos em **Parcelas**. Para avulso, crie a cobrança em **Pagamentos → Cobrança avulsa**. Comissões só podem ser pagas após recebimento integral.
 
 Nenhum atendimento é concluído sem anamnese. Procedimento que exige foto demanda fotografia com consentimento registrado. Fotos são privadas e precisam de autenticação clínica para leitura.
 
@@ -66,18 +69,24 @@ Nenhum atendimento é concluído sem anamnese. Procedimento que exige foto deman
 - `app/admin`, `components/admin`: painel, formulários, calendário, relatórios e fotos.
 - `app/api/clinic/[...path]`: autenticação, CSRF, dispatch e erros HTTP.
 - `lib/clinic`: permissões, segurança, catálogo, CRUD, operações transacionais e relatórios.
-- `database/001-base.sql` a `005-portal.sql`: migrations versionadas.
-- `database/demo.sql`: dados fictícios opcionais; `scripts/seed.mjs` complementa a migração.
+- `database/001-base.sql` a `008-receipt-method.sql`: uma cadeia sequencial que cria e atualiza o único banco principal configurado em `MYSQL_DATABASE`/`DATABASE_URL` (por padrão, `bellapelle_modelo`). O banco `_test` é isolado e usado somente quando os testes de integração são executados.
+- `database/demo.sql`: dados sintéticos opcionais; `scripts/seed.mjs` exige confirmação, verifica as tabelas de negócio e gera CPFs válidos para teste e credenciais locais aleatórias.
 - `tests`: regras, segurança, integração MySQL, HTTP e Playwright.
-- `docs`: contratos, auditoria, modelo, instruções e resultados.
+- `docs`: instruções de operação, modelo de dados, contratos da API e pendências conhecidas.
+
+## Redesign e cobertura dos dados
+
+Consulte [`docs/RELATORIO-REDESIGN-E-INTEGRACAO.md`](docs/RELATORIO-REDESIGN-E-INTEGRACAO.md) para a matriz de todas as 45 tabelas das migrations, onde cada grupo aparece, regras de publicação e limites da validação executada.
 
 ## Onde entrar
 
-- **Site/cliente:** http://localhost:3000/portal — a raiz redireciona para essa tela.
-- **Equipe:** http://localhost:3000/admin — use ADMIN_EMAIL e ADMIN_PASSWORD gerados no `.env`.
-- Cliente novo usa **Criar minha conta**; cliente já cadastrado pela recepção usa **Recuperar / ativar acesso**. Ativação exige e-mail corretamente cadastrado e SMTP configurado.
-- Administrador publica recursos em **Agenda do portal**, após cadastrar as habilitações. Sem configuração de recursos não é possível reservar aquele procedimento.
-- **Minha conta** exibe pacotes, parcelas, contato e solicitações de privacidade.
+- **Site público:** http://localhost:3000/ — único layout público; `/portal` é apenas um redirecionamento compatível para `/`.
+- **Dashboard da equipe:** http://localhost:3000/admin — use `ADMIN_EMAIL` e `ADMIN_PASSWORD` gerados no `.env`.
+- Clientes podem navegar sem conta. Agendamento e área pessoal abrem a modal de acesso; cliente criado pela recepção pode ativar a conta pelo próprio fluxo de cadastro.
+- Em **Agenda do portal**, a equipe define os procedimentos e horários disponíveis.
+- Em **Contato e privacidade do site**, a administração cadastra telefone, WhatsApp, e-mail, endereço, horário, CNPJ e texto oficial da política. O site não inventa esses dados quando estão vazios.
+- No dashboard, cadastre artigos em **Conteúdo do blog**. A seção pública mostra apenas os publicados. Avaliações só ficam públicas com consentimento de publicação registrado e publicação ativada.
+- A área do cliente oferece agendamentos, dados pessoais, favoritos e solicitações de privacidade.
 
 ## Envio de e-mail
 
@@ -89,8 +98,7 @@ docker compose --profile mail up -d --build mail
 npm run mail:worker
 ```
 
-O worker processa EmailOutbox com cinco tentativas, expira mensagens de recuperação atrasadas e remove o conteúdo enviado. O prazo do token é de 30 minutos. Sem SMTP configurado não há envio externo; a interface informa somente a solicitação. A API legada permanece desabilitada e não deve ser habilitada em produção.
-
+O worker processa EmailOutbox com cinco tentativas, expira mensagens de recuperação atrasadas e remove o conteúdo enviado. O prazo do token é de 30 minutos. Sem SMTP configurado não há envio externo; a interface informa somente a solicitação. A API pública de leitura (`GET /api/public`) entrega apenas procedimentos e profissionais ativos, avaliações autorizadas/publicadas e artigos publicados. Dados de clientes, equipe e operações continuam protegidos por sessão e CSRF. A API legada permanece desabilitada e não deve ser habilitada em produção.
 
 ## Testes
 
@@ -122,7 +130,7 @@ O E2E cria um cliente: rode sobre banco de teste recém-preparado. A pipeline in
 
 ## API e produção
 
-Contrato em `docs/CONTRATO-V4.md`, inventário OpenAPI em `docs/openapi.json`. Mutações exigem cookie de sessão, Origin correspondente a `APP_ORIGIN` e header `X-CSRF-Token` retornado no login/session. Sessões expiram após 8 horas e são invalidadas no logout/alteração de usuário.
+Contrato em `docs/CONTRATO-API.md`, inventário OpenAPI em `docs/openapi.json`. Mutações exigem cookie de sessão, Origin correspondente a `APP_ORIGIN` e header `X-CSRF-Token` retornado no login/session. Sessões expiram após 8 horas e são invalidadas no logout/alteração de usuário.
 
 Use HTTPS e `APP_ORIGIN` com URL HTTPS em produção; os cookies passam a incluir Secure. Configure proxy reverso, backups criptografados do MySQL e fotos, restauração testada e acesso restrito à infraestrutura. Não exponha a porta MySQL publicamente. Recuperação de senha grava mensagens em `EmailOutbox`; o envio de e-mail externo ainda precisa de integração e credenciais. Não há cobrança PIX/cartão externa, SMS ou WhatsApp integrado.
 

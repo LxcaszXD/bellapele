@@ -18,6 +18,7 @@ export type Resource = {
   active?: boolean;
   scope?: string;
   date?: string;
+  singleton?: boolean;
 };
 const f = (
   name: string,
@@ -26,21 +27,61 @@ const f = (
   reference?: string,
 ): Field => ({
   name,
-  label: name.replace(/^id_/, "").replaceAll("_", " "),
+  label:
+    (
+      {
+        foto_url: "Foto do profissional (URL ou caminho)",
+        imagem_url: "Foto ou imagem (URL ou caminho)",
+        anos_experiencia: "Anos de experiência",
+        forma_pagamento: "Forma de pagamento",
+        valor_recebido: "Valor recebido",
+      } as Record<string, string>
+    )[name] || name.replace(/^id_/, "").replaceAll("_", " "),
   type,
   required,
   reference,
 });
 const ref = (n: string, r: string, required = true) =>
   f(n, "reference", required, r);
+const optionLabels: Record<string, string> = {
+  pendente: "Pendente",
+  confirmado: "Confirmado",
+  concluido: "Concluído",
+  cancelado: "Cancelado",
+  nao_compareceu: "Não compareceu",
+  parcial: "Parcialmente pago",
+  pago: "Pago",
+  estornado: "Estornado",
+  cartao_credito: "Cartão de crédito",
+  cartao_debito: "Cartão de débito",
+  pix: "PIX",
+  dinheiro: "Dinheiro",
+};
 const opts = (n: string, values: string[]): Field => ({
   ...f(n, "select", true),
   options: values.map((value) => ({
     value,
-    label: value.replaceAll("_", " "),
+    label: optionLabels[value] || value.replaceAll("_", " "),
   })),
 });
 export const resources: Resource[] = [
+  {
+    key: "configuracao-publica",
+    label: "Contato e privacidade do site",
+    table: "ConfiguracaoPublica",
+    pk: "id",
+    permission: "config",
+    singleton: true,
+    fields: [
+      f("telefone", "text", false),
+      f("whatsapp", "text", false),
+      f("email", "email", false),
+      f("endereco", "text", false),
+      f("horario_atendimento", "textarea", false),
+      f("cnpj", "text", false),
+      f("politica_privacidade", "textarea", false),
+    ],
+  },
   {
     key: "agenda-portal",
     label: "Agenda do portal",
@@ -123,6 +164,8 @@ export const resources: Resource[] = [
       f("telefone"),
       f("email", "email", true),
       f("data_admissao", "date", true),
+      f("foto_url"),
+      f("anos_experiencia", "number", true),
     ],
   },
   {
@@ -138,6 +181,37 @@ export const resources: Resource[] = [
       f("valor_avulso", "money", true),
       f("exige_registro_foto", "boolean"),
       f("descricao", "textarea"),
+      f("imagem_url"),
+    ],
+  },
+  {
+    key: "blog",
+    label: "Conteúdo do blog",
+    table: "BlogPost",
+    pk: "id_post",
+    date: "data_publicacao",
+    fields: [
+      f("titulo", "text", true),
+      f("resumo", "text", true),
+      f("conteudo", "textarea", true),
+      f("imagem_url", "text"),
+      f("publicado", "boolean"),
+      f("data_publicacao", "datetime-local"),
+    ],
+  },
+  {
+    key: "avaliacoes-publicas",
+    label: "Avaliações e autorização de publicação",
+    table: "Avaliacao",
+    pk: "id_avaliacao",
+    date: "data_avaliacao",
+    fields: [
+      ref("id_agendamento", "agendamentos"),
+      f("nota", "number", true),
+      f("comentario", "textarea"),
+      f("consentimento_publicacao", "boolean"),
+      f("publicada", "boolean"),
+      f("data_avaliacao", "datetime-local"),
     ],
   },
   {

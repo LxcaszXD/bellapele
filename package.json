@@ -20,10 +20,12 @@
     "test:e2e:admin": "playwright test --config playwright.admin.config.ts workflow.spec.ts && playwright test --config playwright.admin.config.ts customer.spec.ts",
     "api:docs": "node --import tsx scripts/generate-openapi.ts",
     "test:api:clinic": "node tests/clinic-http.mjs",
-    "lint": "eslint lib/clinic lib/customer components/admin components/customer-portal.tsx app/api/customer scripts/mail-worker.mjs",
+    "lint": "eslint lib/clinic lib/customer components/admin components/customer-services.tsx components/institutional.tsx app/api/customer scripts/mail-worker.mjs",
     "mail:worker": "node --env-file-if-exists=.env.local scripts/mail-worker.mjs"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.1",
     "lucide-react": "1.54.0",
     "mysql2": "3.24.5",
     "next": "16.4.0",

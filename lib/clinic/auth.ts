@@ -187,7 +187,7 @@ export async function forgot(request: Request) {
         [
           email,
           "Recuperação de senha BellaPelle",
-          `${process.env.APP_ORIGIN}/admin?reset=${encodeURIComponent(token)}`,
+          `${process.env.APP_ORIGIN}/?reset=${encodeURIComponent(token)}`,
         ],
       );
       await conn.commit();

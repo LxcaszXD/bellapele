@@ -2,7 +2,7 @@ import { rows, type Connection } from "./db";
 import { date, assert } from "./validation";
 export const reports: Record<string, { sql: string; date: string }> = {
   faturamento: {
-    sql: "SELECT r.id_recebimento,r.data,r.tipo,r.valor,p.id_cliente,p.forma_pagamento FROM Recebimento r JOIN Parcela pa ON pa.id_parcela=r.id_parcela JOIN Pagamento p ON p.id_pagamento=pa.id_pagamento",
+    sql: "SELECT r.id_recebimento,r.data,r.tipo,r.valor,r.forma_pagamento,p.id_cliente,c.nome_completo cliente_nome,p.id_pagamento FROM Recebimento r JOIN Parcela pa ON pa.id_parcela=r.id_parcela JOIN Pagamento p ON p.id_pagamento=pa.id_pagamento JOIN Cliente c ON c.id_cliente=p.id_cliente",
     date: "r.data",
   },
   pagamentos: {

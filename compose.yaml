@@ -75,6 +75,7 @@ services:
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_NAME: ${ADMIN_NAME:-Administrador}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
       ALLOW_DEMO_SEED: ${ALLOW_DEMO_SEED:-false}
     command: [node, scripts/create-admin.mjs]
     depends_on:

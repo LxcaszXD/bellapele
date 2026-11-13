@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { MotionProvider } from "@/components/motion-provider";
 export const metadata: Metadata = {
   title: "BellaPelle | Seu momento de cuidado",
   description: "Encontre tratamentos, escolha seu horário e cuide de você.",
@@ -12,7 +13,9 @@ export const viewport: Viewport = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   );
 }

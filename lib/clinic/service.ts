@@ -50,7 +50,9 @@ function parse(r: Resource, input: unknown) {
   for (const f of r.fields) {
     let s: z.ZodType;
     if (f.type === "boolean") s = z.boolean();
-    else if (f.type === "reference" || f.type === "number") s = id;
+    else if (f.type === "reference") s = id;
+    else if (f.type === "number")
+      s = z.coerce.number().int().min(0).max(1000000);
     else if (f.type === "money" || f.type === "decimal")
       s = z.string().regex(/^\d{1,8}(\.\d{1,3})?$/);
     else if (f.type === "date") s = date;
@@ -125,8 +127,12 @@ async function entity(
   const select =
     columns.map((k) => `t.\`${k}\``).join(",") +
     (r.key === "agendamentos"
-      ? ",(SELECT nome_completo FROM Cliente cl WHERE cl.id_cliente=t.id_cliente) cliente_nome,(SELECT nome FROM Profissional pr WHERE pr.id_profissional=t.id_profissional) profissional_nome,(SELECT nome FROM Procedimento pr WHERE pr.id_procedimento=t.id_procedimento) procedimento_nome"
-      : "");
+      ? ",(SELECT nome_completo FROM Cliente cl WHERE cl.id_cliente=t.id_cliente) cliente_nome,(SELECT nome FROM Profissional pr WHERE pr.id_profissional=t.id_profissional) profissional_nome,(SELECT nome FROM Procedimento pr WHERE pr.id_procedimento=t.id_procedimento) procedimento_nome,(SELECT nome FROM Sala sl WHERE sl.id_sala=t.id_sala) sala_nome,(SELECT nome FROM PacoteCliente pcx JOIN Pacote pk ON pk.id_pacote=pcx.id_pacote WHERE pcx.id_pacote_cliente=t.id_pacote_cliente) pacote_nome,COALESCE((SELECT status FROM Pagamento pg WHERE pg.id_agendamento=t.id_agendamento ORDER BY pg.id_pagamento DESC LIMIT 1),(SELECT status_pagamento FROM PacoteCliente pcx WHERE pcx.id_pacote_cliente=t.id_pacote_cliente)) pagamento_status,COALESCE((SELECT forma_pagamento FROM Pagamento pg WHERE pg.id_agendamento=t.id_agendamento ORDER BY pg.id_pagamento DESC LIMIT 1),(SELECT forma_pagamento FROM Pagamento pg WHERE pg.id_pacote_cliente=t.id_pacote_cliente ORDER BY pg.id_pagamento DESC LIMIT 1)) forma_pagamento,(SELECT COALESCE(SUM(pa.valor_recebido),0) FROM Pagamento pg JOIN Parcela pa ON pa.id_pagamento=pg.id_pagamento WHERE pg.id_agendamento=t.id_agendamento OR (t.id_pacote_cliente IS NOT NULL AND pg.id_pacote_cliente=t.id_pacote_cliente)) valor_recebido"
+      : r.key === "pagamentos"
+        ? ",(SELECT nome_completo FROM Cliente cl WHERE cl.id_cliente=t.id_cliente) cliente_nome,COALESCE((SELECT CONCAT('Plano · ',p.nome) FROM PacoteCliente pc JOIN Pacote p ON p.id_pacote=pc.id_pacote WHERE pc.id_pacote_cliente=t.id_pacote_cliente),(SELECT CONCAT('Agendamento · ',pr.nome) FROM Agendamento a JOIN Procedimento pr ON pr.id_procedimento=a.id_procedimento WHERE a.id_agendamento=t.id_agendamento)) destino,(SELECT COALESCE(SUM(pa.valor_recebido),0) FROM Parcela pa WHERE pa.id_pagamento=t.id_pagamento) valor_recebido,t.valor_total-(SELECT COALESCE(SUM(pa.valor_recebido),0) FROM Parcela pa WHERE pa.id_pagamento=t.id_pagamento) saldo_pendente"
+        : r.key === "parcelas"
+          ? ",(SELECT nome_completo FROM Cliente cl JOIN Pagamento pg ON pg.id_cliente=cl.id_cliente WHERE pg.id_pagamento=t.id_pagamento) cliente_nome,(SELECT COALESCE((SELECT CONCAT('Plano · ',p.nome) FROM PacoteCliente pc JOIN Pacote p ON p.id_pacote=pc.id_pacote WHERE pc.id_pacote_cliente=pg.id_pacote_cliente),(SELECT CONCAT('Agendamento · ',pr.nome) FROM Agendamento a JOIN Procedimento pr ON pr.id_procedimento=a.id_procedimento WHERE a.id_agendamento=pg.id_agendamento)) FROM Pagamento pg WHERE pg.id_pagamento=t.id_pagamento) destino"
+          : "");
   if (request.method === "GET") {
     const clauses = [where.sql],
       values = [...where.values];
@@ -219,6 +225,7 @@ async function entity(
     assert(existing.length, "Registro não encontrado", 404);
   }
   if (request.method === "DELETE") {
+    assert(!r.singleton, "Esta configuração não pode ser removida", 405);
     assert(key && r.active, "Exclusão não permitida", 405);
     await exec(c, `UPDATE ${r.table} SET ativo=0 WHERE ${r.pk}=?`, [key]);
   } else {
@@ -233,6 +240,12 @@ async function entity(
       "Crie uma nova avaliação para preservar o histórico",
       405,
     );
+    if (r.singleton)
+      assert(
+        request.method === "PATCH" && key === 1,
+        "Edite a configuração existente",
+        405,
+      );
     const data = parse(r, await jsonBody(request));
     if (r.key === "politica-faltas") {
       assert(key === 1, "Edite a política existente", 405);

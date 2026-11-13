@@ -1,2 +1,3 @@
-import {redirect} from 'next/navigation';
-export default function Home(){redirect('/portal');}
+import Home from "@/components/institutional";
+import "./institutional.css";
+export default function Page(){return <Home/>}

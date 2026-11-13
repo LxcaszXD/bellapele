@@ -80,6 +80,11 @@ export async function available(
     "SELECT * FROM Disponibilidade WHERE id_profissional=? AND ativo=1",
     [b.id_profissional],
   );
+  assert(
+    schedules.length > 0,
+    "Profissional sem disponibilidade cadastrada",
+    409,
+  );
   if (schedules.length) {
     const fmt = new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Sao_Paulo",
@@ -449,6 +454,17 @@ export async function operate(
         Date.now(),
       "Atendimento não pode iniciar antes do agendamento",
     );
+    // Avaliação obrigatória antes de iniciar o procedimento, não apenas ao concluir.
+    const [evaluation] = await rows(
+      c,
+      "SELECT id_anamnese FROM Anamnese WHERE id_cliente=? ORDER BY data_avaliacao DESC LIMIT 1",
+      [a.id_cliente],
+    );
+    assert(
+      evaluation,
+      "Registre a anamnese do cliente antes de iniciar o atendimento",
+      409,
+    );
     if (!at) {
       const r = await exec(
         c,
@@ -591,8 +607,23 @@ export async function operate(
     };
   } else if (name === "receber-parcela") {
     const b = z
-      .object({ id_parcela: id, valor: z.union([z.string(), z.number()]) })
+      .object({
+        id_parcela: id,
+        valor: z.union([z.string(), z.number()]),
+        forma_pagamento: method,
+        data_recebimento: date,
+      })
       .parse(input);
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+    assert(
+      b.data_recebimento <= today,
+      "A data do recebimento não pode ser futura",
+    );
     const p = await one(c, "Parcela", "id_parcela", b.id_parcela),
       pay = await one(c, "Pagamento", "id_pagamento", Number(p.id_pagamento));
     assert(
@@ -611,8 +642,14 @@ export async function operate(
     );
     await exec(
       c,
-      "INSERT INTO Recebimento(id_parcela,valor,tipo,id_autor) VALUES(?,?,'recebimento',?)",
-      [b.id_parcela, money(amount), actor.id || null],
+      "INSERT INTO Recebimento(id_parcela,valor,tipo,id_autor,data,forma_pagamento) VALUES(?,?,'recebimento',?,?,?)",
+      [
+        b.id_parcela,
+        money(amount),
+        actor.id || null,
+        utc(`${b.data_recebimento}T12:00:00-03:00`),
+        b.forma_pagamento,
+      ],
     );
     const [sum] = await rows(
       c,

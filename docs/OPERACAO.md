@@ -6,7 +6,8 @@
 2. Importe a cópia para uma base de homologação MySQL 8.4. Configure DATABASE_URL nessa cópia.
 3. Execute `npm run db:migrate`. A migration 001 detecta Cliente e adota a base v3 existente sem apagar dados. Essa adoção pressupõe schema v3 entregue no ZIP: alterações locais devem ser comparadas antes.
 4. Revise constraints e dados legados. A migration 003 completa `Parcela.valor_recebido` das parcelas pagas. Não inventa novos recebimentos/comissões históricos: demonstrativos baseados em Recebimento começam com os lançamentos da v4.
-5. Execute testes e reconcilie saldos, sessões, estoques e pagamentos antes de direcionar a aplicação de produção para a nova base.
+5. A migration 008 adiciona a forma efetivamente recebida ao ledger. Registros antigos permanecem com esse campo vazio; não se atribui retroativamente uma forma de pagamento sem evidência.
+6. Execute testes e reconcilie saldos, sessões, estoques e pagamentos antes de direcionar a aplicação de produção para a nova base.
 
 Migrations usam checksum e lock GET_LOCK. MySQL faz commits implícitos para DDL; não existe promessa de rollback integral de uma migration. O estado `running` impede reaplicação automática após erro. Em caso de interrupção, restaure o backup ou examine cada DDL executado, finalize o reparo em homologação e somente então registre o estado correto com revisão humana. Não apague SchemaMigration para forçar uma nova execução.
 

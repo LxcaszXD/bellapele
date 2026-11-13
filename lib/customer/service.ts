@@ -61,7 +61,7 @@ async function map(c: Connection, user: number, agenda?: number) {
 async function config(c: Connection, procedure: number) {
   const [r] = await rows(
     c,
-    "SELECT cfg.*,p.duracao_minutos FROM AgendaConfiguracao cfg JOIN Procedimento p ON p.id_procedimento=cfg.id_procedimento WHERE cfg.id_procedimento=? AND p.ativo=1",
+    "SELECT cfg.*,p.duracao_minutos FROM AgendaConfiguracao cfg JOIN Procedimento p ON p.id_procedimento=cfg.id_procedimento JOIN Profissional pr ON pr.id_profissional=cfg.id_profissional AND pr.ativo=1 WHERE cfg.id_procedimento=? AND p.ativo=1",
     [procedure],
   );
   assert(
@@ -69,6 +69,130 @@ async function config(c: Connection, procedure: number) {
     "A clínica ainda não disponibilizou horários para este procedimento.",
   );
   return r;
+}
+async function availableDays(
+  c: Connection,
+  user: number,
+  treatment: number,
+  month: string,
+  excluded: number,
+) {
+  assert(/^\d{4}-(0[1-9]|1[0-2])$/.test(month), "Mês inválido");
+  const first = `${month}-01`;
+  portalDate.parse(first);
+  const nextMonth = new Date(`${first}T12:00:00-03:00`);
+  nextMonth.setMonth(nextMonth.getMonth() + 1);
+  const afterMonth = nextMonth.toISOString().slice(0, 10);
+  const startUtc = utc(`${first}T00:00:00-03:00`);
+  const endUtc = utc(`${afterMonth}T00:00:00-03:00`);
+  const cfg = excluded
+    ? await own(c, user, excluded)
+    : await config(c, treatment);
+  if (excluded)
+    assert(
+      Number(cfg.id_procedimento) === treatment,
+      "Procedimento incompatível",
+    );
+  const [proc] = await rows(
+    c,
+    "SELECT duracao_minutos FROM Procedimento WHERE id_procedimento=? AND ativo=1",
+    [treatment],
+  );
+  assert(proc, "Procedimento indisponível", 404);
+  const availability = await rows(
+    c,
+    "SELECT dia_semana,hora_inicio,hora_fim FROM Disponibilidade WHERE id_profissional=? AND ativo=1 ORDER BY dia_semana,hora_inicio",
+    [cfg.id_profissional],
+  );
+  if (!availability.length) return { dates: [] as string[] };
+  const conflicts = await rows(
+    c,
+    `SELECT data_hora_inicio,data_hora_fim FROM Agendamento
+      WHERE status IN ('pendente','confirmado') AND id_agendamento<>?
+        AND data_hora_inicio<? AND data_hora_fim>?
+        AND (id_cliente=? OR id_profissional=? OR id_sala=? OR (? IS NOT NULL AND id_equipamento=?))`,
+    [
+      excluded,
+      endUtc,
+      startUtc,
+      user,
+      cfg.id_profissional,
+      cfg.id_sala,
+      cfg.id_equipamento ?? null,
+      cfg.id_equipamento ?? null,
+    ],
+  );
+  const blocks = await rows(
+    c,
+    `SELECT inicio,fim FROM Bloqueio WHERE ativo=1 AND inicio<? AND fim>?
+      AND (id_profissional=? OR id_sala=? OR id_equipamento=?)`,
+    [
+      endUtc,
+      startUtc,
+      cfg.id_profissional,
+      cfg.id_sala,
+      cfg.id_equipamento ?? null,
+    ],
+  );
+  const toMillis = (value: unknown) =>
+    Date.parse(String(value).replace(" ", "T") + "Z");
+  const daysInMonth = new Date(
+    Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0),
+  ).getUTCDate();
+  const dates: string[] = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateValue = `${month}-${String(day).padStart(2, "0")}`;
+    const weekday = new Date(`${dateValue}T12:00:00-03:00`).getDay();
+    const windows = availability.filter(
+      (slot) => Number(slot.dia_semana) === weekday,
+    );
+    let dayAvailable = false;
+    for (const window of windows) {
+      const [startHour, startMinute] = String(window.hora_inicio)
+        .slice(0, 5)
+        .split(":")
+        .map(Number);
+      const [endHour, endMinute] = String(window.hora_fim)
+        .slice(0, 5)
+        .split(":")
+        .map(Number);
+      const duration = Number(proc.duracao_minutos);
+      for (
+        let minute = startHour * 60 + startMinute;
+        minute + duration <= endHour * 60 + endMinute;
+        minute += 30
+      ) {
+        const time = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
+        const start = utc(`${dateValue}T${time}:00-03:00`);
+        if (Date.parse(start.replace(" ", "T") + "Z") <= Date.now()) continue;
+        const end = new Date(
+          Date.parse(start.replace(" ", "T") + "Z") + duration * 60000,
+        )
+          .toISOString()
+          .slice(0, 19)
+          .replace("T", " ");
+        const startMs = toMillis(start);
+        const endMs = toMillis(end);
+        const occupied =
+          conflicts.some(
+            (entry) =>
+              toMillis(entry.data_hora_inicio) < endMs &&
+              toMillis(entry.data_hora_fim) > startMs,
+          ) ||
+          blocks.some(
+            (entry) =>
+              toMillis(entry.inicio) < endMs && toMillis(entry.fim) > startMs,
+          );
+        if (!occupied) {
+          dayAvailable = true;
+          break;
+        }
+      }
+      if (dayAvailable) break;
+    }
+    if (dayAvailable) dates.push(dateValue);
+  }
+  return { dates };
 }
 export async function customerService(
   request: Request,
@@ -81,7 +205,7 @@ export async function customerService(
     if (route === "bootstrap" && request.method === "GET") {
       const treatments = await rows(
         c,
-        `SELECT p.*,pr.nome profissional,pr.id_profissional,pr.anos_experiencia,COALESCE(av.rating,0) rating,COALESCE(av.reviews,0) reviews FROM Procedimento p LEFT JOIN AgendaConfiguracao cfg ON cfg.id_procedimento=p.id_procedimento LEFT JOIN Profissional pr ON pr.id_profissional=cfg.id_profissional LEFT JOIN (SELECT a.id_procedimento,AVG(v.nota) rating,COUNT(*) reviews FROM Avaliacao v JOIN Agendamento a ON a.id_agendamento=v.id_agendamento GROUP BY a.id_procedimento) av ON av.id_procedimento=p.id_procedimento WHERE p.ativo=1 ORDER BY p.id_procedimento`,
+        `SELECT p.*,pr.nome profissional,pr.id_profissional,pr.anos_experiencia,COALESCE(av.rating,0) rating,COALESCE(av.reviews,0) reviews FROM Procedimento p LEFT JOIN AgendaConfiguracao cfg ON cfg.id_procedimento=p.id_procedimento LEFT JOIN Profissional pr ON pr.id_profissional=cfg.id_profissional AND pr.ativo=1 LEFT JOIN (SELECT a.id_procedimento,AVG(v.nota) rating,COUNT(*) reviews FROM Avaliacao v JOIN Agendamento a ON a.id_agendamento=v.id_agendamento GROUP BY a.id_procedimento) av ON av.id_procedimento=p.id_procedimento WHERE p.ativo=1 ORDER BY p.id_procedimento`,
       );
       const fav = await rows(
         c,
@@ -102,7 +226,7 @@ export async function customerService(
           price: Number(p.valor_avulso),
           rating: Number(p.rating),
           reviews: Number(p.reviews),
-          image: p.imagem_url || "/images/facial-card.jpg",
+          image: p.imagem_url || "/images/bellapelle-facial-new.webp",
           specialistName: p.profissional || "Consulte a clínica",
           specialistId: p.id_profissional,
           experience: Number(p.anos_experiencia || 0),
@@ -112,6 +236,19 @@ export async function customerService(
       };
     }
     if (route === "slots" && request.method === "GET") {
+      if (query.has("month")) {
+        const treatment = id.parse(query.get("treatmentId"));
+        const excluded = query.get("exclude")
+          ? id.parse(query.get("exclude"))
+          : 0;
+        return availableDays(
+          c,
+          user.id,
+          treatment,
+          String(query.get("month")),
+          excluded,
+        );
+      }
       const day = portalDate.parse(query.get("date")),
         treatment = id.parse(query.get("treatmentId"));
       const excluded = query.get("exclude")
@@ -128,35 +265,60 @@ export async function customerService(
         );
       const [proc] = await rows(
         c,
-        "SELECT duracao_minutos FROM Procedimento WHERE id_procedimento=?",
+        "SELECT duracao_minutos FROM Procedimento WHERE id_procedimento=? AND ativo=1",
         [treatment],
       );
+      assert(proc, "Procedimento indisponível", 404);
+      const availability = await rows(
+        c,
+        "SELECT dia_semana,hora_inicio,hora_fim FROM Disponibilidade WHERE id_profissional=? AND ativo=1 ORDER BY dia_semana,hora_inicio",
+        [cfg.id_profissional],
+      );
+      const weekday = new Date(`${day}T12:00:00-03:00`).getDay();
       const times: string[] = [];
-      for (let minute = 8 * 60; minute <= 19 * 60; minute += 30) {
-        const time = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
-        const start = utc(`${day}T${time}:00-03:00`);
-        if (Date.parse(start.replace(" ", "T") + "Z") <= Date.now()) continue;
-        const end = new Date(
-          Date.parse(start.replace(" ", "T") + "Z") +
-            Number(proc.duracao_minutos) * 60000,
-        )
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " ");
-        try {
-          await available(
-            c,
-            { ...cfg, id_cliente: user.id, id_procedimento: treatment },
-            start,
-            end,
-            excluded,
-          );
-          times.push(time);
-        } catch (e) {
-          if (!(e instanceof Error && "status" in e)) throw e;
+      for (const window of availability.filter(
+        (slot) => Number(slot.dia_semana) === weekday,
+      )) {
+        const [startHour, startMinute] = String(window.hora_inicio)
+          .slice(0, 5)
+          .split(":")
+          .map(Number);
+        const [endHour, endMinute] = String(window.hora_fim)
+          .slice(0, 5)
+          .split(":")
+          .map(Number);
+        const first = startHour * 60 + startMinute;
+        const last = endHour * 60 + endMinute;
+        for (
+          let minute = first;
+          minute + Number(proc.duracao_minutos) <= last;
+          minute += 30
+        ) {
+          const time = `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
+          const start = utc(`${day}T${time}:00-03:00`);
+          if (Date.parse(start.replace(" ", "T") + "Z") <= Date.now()) continue;
+          const end = new Date(
+            Date.parse(start.replace(" ", "T") + "Z") +
+              Number(proc.duracao_minutos) * 60000,
+          )
+            .toISOString()
+            .slice(0, 19)
+            .replace("T", " ");
+          try {
+            await available(
+              c,
+              { ...cfg, id_cliente: user.id, id_procedimento: treatment },
+              start,
+              end,
+              excluded,
+            );
+            times.push(time);
+          } catch (e) {
+            if (!(e instanceof Error && "status" in e)) throw e;
+          }
         }
       }
-      return { slots: times };
+      return { slots: [...new Set(times)].sort() };
     }
     if (route === "favorites" && request.method === "PUT") {
       const b = z
@@ -282,12 +444,25 @@ export async function customerService(
         profile,
         packages: await rows(
           c,
-          "SELECT pc.id_pacote_cliente,p.nome,p.id_procedimento,pc.data_validade,pc.sessoes_restantes,pc.status_pagamento FROM PacoteCliente pc JOIN Pacote p ON p.id_pacote=pc.id_pacote WHERE pc.id_cliente=?",
+          "SELECT pc.id_pacote_cliente,p.nome,p.id_procedimento,pc.data_validade,pc.sessoes_restantes,pc.sessoes_contratadas,pc.valor_contratado,pc.status_pagamento,IF(pc.data_validade>=CURRENT_DATE AND pc.sessoes_restantes>0,'ativo','inativo') plano_status FROM PacoteCliente pc JOIN Pacote p ON p.id_pacote=pc.id_pacote WHERE pc.id_cliente=?",
           [user.id],
         ),
         payments: await rows(
           c,
-          "SELECT p.id_pagamento,p.forma_pagamento,p.status,pa.numero_parcela,pa.valor_parcela,pa.valor_recebido,pa.data_vencimento FROM Pagamento p JOIN Parcela pa ON pa.id_pagamento=p.id_pagamento WHERE p.id_cliente=? ORDER BY pa.data_vencimento DESC LIMIT 200",
+          `SELECT p.id_pagamento,p.forma_pagamento,p.status,p.valor_total,
+                  CASE WHEN p.id_pacote_cliente IS NOT NULL THEN pc.nome
+                       ELSE CONCAT('Agendamento · ',pr.nome) END AS destino,
+                  pa.numero_parcela,pa.valor_parcela,pa.valor_recebido,
+                  pa.valor_parcela-pa.valor_recebido AS saldo_pendente,
+                  pa.data_vencimento,pa.data_pagamento,
+                  (SELECT MAX(r.data) FROM Recebimento r WHERE r.id_parcela=pa.id_parcela AND r.tipo='recebimento') AS data_recebimento,
+                  (SELECT r.forma_pagamento FROM Recebimento r WHERE r.id_parcela=pa.id_parcela AND r.tipo='recebimento' ORDER BY r.id_recebimento DESC LIMIT 1) AS forma_recebimento
+             FROM Pagamento p JOIN Parcela pa ON pa.id_pagamento=p.id_pagamento
+             LEFT JOIN PacoteCliente pcx ON pcx.id_pacote_cliente=p.id_pacote_cliente
+             LEFT JOIN Pacote pc ON pc.id_pacote=pcx.id_pacote
+             LEFT JOIN Agendamento a ON a.id_agendamento=p.id_agendamento
+             LEFT JOIN Procedimento pr ON pr.id_procedimento=a.id_procedimento
+            WHERE p.id_cliente=? ORDER BY pa.data_vencimento DESC LIMIT 200`,
           [user.id],
         ),
         requests: await rows(

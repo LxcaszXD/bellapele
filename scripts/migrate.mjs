@@ -23,6 +23,9 @@ try {
     "003-clinic.sql",
     "004-security.sql",
     "005-portal.sql",
+    "006-public-content.sql",
+    "007-contact-policy.sql",
+    "008-receipt-method.sql",
   ]) {
     const sql = await readFile(
       new URL("../database/" + name, import.meta.url),

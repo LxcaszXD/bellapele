@@ -11,7 +11,21 @@ const field = (
 ): Field => ({ name, label, type, required, reference });
 const select = (name: string, label: string, values: string[]): Field => ({
   ...field(name, label, "select"),
-  options: values.map((v) => ({ value: v, label: v.replaceAll("_", " ") })),
+  options: values.map((v) => ({
+    value: v,
+    label:
+      (
+        {
+          pix: "PIX",
+          cartao_credito: "Cartão de crédito",
+          cartao_debito: "Cartão de débito",
+          dinheiro: "Dinheiro",
+          confirmado: "Confirmado",
+          cancelado: "Cancelado",
+          nao_compareceu: "Não compareceu",
+        } as Record<string, string>
+      )[v] || v.replaceAll("_", " "),
+  })),
 });
 const id = (name: string, label: string, reference: string, required = true) =>
   field(name, label, "reference", required, reference);
@@ -110,6 +124,13 @@ export const operationSpecs: Record<
     fields: [
       id("id_parcela", "Parcela", "parcelas"),
       field("valor", "Valor recebido (R$)", "money"),
+      select("forma_pagamento", "Forma recebida", [
+        "pix",
+        "cartao_credito",
+        "cartao_debito",
+        "dinheiro",
+      ]),
+      field("data_recebimento", "Data do recebimento", "date"),
     ],
   },
   "estornar-pagamento": {

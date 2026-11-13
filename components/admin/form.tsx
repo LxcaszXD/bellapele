@@ -1,7 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { X, Search } from "lucide-react";
-import { type Api, type Field, type Row, convert, localDate } from "./api";
+import {
+  type Api,
+  type Field,
+  type Row,
+  convert,
+  display,
+  localDate,
+} from "./api";
 export function Dialog({
   title,
   onClose,
@@ -92,17 +99,33 @@ function Reference({
           return (
             <option key={String(id)} value={String(id)}>
               {String(
-                row.nome_completo ||
+                row.destino ||
+                  row.nome_completo ||
                   row.nome ||
                   row.cliente_nome ||
                   row.nome_cliente ||
                   row.numero_lote ||
                   `Registro ${id}`,
-              )}{" "}
+              )}
+              {[
+                row.cliente_nome && row.destino ? String(row.cliente_nome) : "",
+                row.procedimento_nome ? String(row.procedimento_nome) : "",
+                row.numero_parcela ? `Parcela ${row.numero_parcela}` : "",
+                row.data_hora_inicio
+                  ? localDate(row.data_hora_inicio).replace("T", " ")
+                  : "",
+                row.valor_parcela
+                  ? new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(Number(row.valor_parcela))
+                  : "",
+                row.status ? display(row.status, "status") : "",
+              ]
+                .filter(Boolean)
+                .map((part) => ` · ${part}`)
+                .join("")}{" "}
               · #{String(id)}
-              {row.data_hora_inicio
-                ? ` · ${localDate(row.data_hora_inicio).replace("T", " ")}`
-                : ""}
             </option>
           );
         })}

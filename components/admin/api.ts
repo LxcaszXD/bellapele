@@ -16,6 +16,7 @@ export type Resource = {
   readonly?: boolean;
   appendOnly?: boolean;
   active?: boolean;
+  singleton?: boolean;
 };
 export type Actor = {
   id: number;
@@ -57,10 +58,62 @@ export async function request<T>(
 }
 export const label = (key: string) =>
   key.replace(/^id_/, "").replaceAll("_", " ");
+const humanStates: Record<string, string> = {
+  pendente: "Pendente",
+  confirmado: "Confirmado",
+  concluido: "Concluído",
+  cancelado: "Cancelado",
+  nao_compareceu: "Não compareceu",
+  parcial: "Parcialmente pago",
+  pago: "Pago",
+  estornado: "Estornado",
+  paga: "Paga",
+  cancelada: "Cancelada",
+  iniciado: "Em atendimento",
+  aberto: "Aberto",
+  em_analise: "Em análise",
+  atendido: "Atendido",
+  indeferido: "Indeferido",
+  recebimento: "Recebimento",
+  estorno: "Estorno",
+  ativa: "Ativa",
+  inativa: "Inativa",
+};
+const booleanLabels: Record<string, [string, string]> = {
+  ativo: ["Ativo", "Inativo"],
+  publicado: ["Publicado", "Rascunho"],
+  publicada: ["Publicada", "Não publicada"],
+  consentimento_publicacao: ["Autorizado", "Não autorizado"],
+  exige_registro_foto: ["Obrigatório", "Não obrigatório"],
+  consumir_sessao: ["Consome sessão", "Não consome sessão"],
+  sessao_consumida: ["Sessão consumida", "Sessão não consumida"],
+  gestante_lactante: ["Sim", "Não"],
+  marcapasso: ["Sim", "Não"],
+  proteses_metalicas: ["Sim", "Não"],
+  uso_isotretinoina: ["Sim", "Não"],
+  tendencia_queloide: ["Sim", "Não"],
+  alergia_acidos_anestesicos: ["Sim", "Não"],
+  lesoes_ativas_pele: ["Sim", "Não"],
+};
 export function display(value: unknown, key = ""): string {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "boolean") return value ? "Sim" : "Não";
-  if (/^(valor|base_calculo)/.test(key) && !Number.isNaN(Number(value)))
+  if (booleanLabels[key] && [0, 1, "0", "1"].includes(value as number | string))
+    return booleanLabels[key][Number(value) ? 0 : 1];
+  if (key.includes("status") && humanStates[String(value)])
+    return humanStates[String(value)];
+  if (key.startsWith("forma_pagamento") || key === "forma_recebimento")
+    return (
+      (
+        {
+          pix: "PIX",
+          cartao_credito: "Cartão de crédito",
+          cartao_debito: "Cartão de débito",
+          dinheiro: "Dinheiro",
+        } as Record<string, string>
+      )[String(value)] || String(value)
+    );
+  if (/^(valor|saldo_|base_calculo)/.test(key) && !Number.isNaN(Number(value)))
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",

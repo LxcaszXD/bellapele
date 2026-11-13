@@ -1,6 +1,6 @@
 # Modelo lógico e físico
 
-DDL físico canônico: `database/001-base.sql`, `002-api.sql`, `003-clinic.sql`, `004-security.sql`. Todos os identificadores principais são inteiros unsigned, com FKs e índices de relacionamento. Valores financeiros são DECIMAL; quantidades usam três casas. Todas as tabelas de negócio permanecem em InnoDB.
+O banco oficial da aplicação é `bellapelle_modelo`. O esquema físico canônico é aplicado nesse único banco pela cadeia sequencial `database/001-base.sql` a `database/008-receipt-method.sql`; `database/demo.sql` contém apenas dados de demonstração e não faz parte das migrations. Todos os identificadores principais são inteiros unsigned, com FKs e índices de relacionamento. Valores financeiros são DECIMAL; quantidades usam três casas. Todas as tabelas de negócio permanecem em InnoDB.
 
 ## Divergências do DER original
 
@@ -87,7 +87,7 @@ erDiagram
   Usuario ||--o{ FotoClinica : registra
 ```
 
-Relações adicionais no DDL: FotoClinica → Atendimento; Comissao → Profissional; ConsumoSessao → Agendamento; MovimentacaoEstoque → Atendimento opcional; Disponibilidade/Bloqueio → recursos; Profissional → Usuario opcional. O diagrama está dividido para leitura; o DDL reúne todas as constraints reais. Favorito/Avaliacao/SessaoCliente/AgendaConfiguracao do portal legado foram preservados.
+Relações adicionais no DDL: FotoClinica → Atendimento; Comissao → Profissional; ConsumoSessao → Agendamento; MovimentacaoEstoque → Atendimento opcional; Disponibilidade/Bloqueio → recursos; Profissional → Usuario opcional. O diagrama está dividido para leitura; o DDL reúne todas as constraints reais. Favorito, Avaliacao, SessaoPortal e AgendaConfiguracao dão suporte aos serviços de clientes. A migração `006-public-content.sql` acrescenta BlogPost e exige consentimento e publicação explícitos para avaliações exibidas no site público.
 
 ## Invariantes
 

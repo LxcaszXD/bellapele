@@ -67,10 +67,16 @@ export async function customerLogin(r: Request) {
   await rateLimit("portal:login:" + b.email);
   await rateLimit("portal:login:global", 200);
   const [list] = await db().execute<RowDataPacket[]>(
-    "SELECT c.id_cliente,c.ativo,a.senha_hash FROM Cliente c JOIN ContaCliente a ON a.id_cliente=c.id_cliente WHERE c.email=?",
+    "SELECT c.id_cliente,c.ativo,a.senha_hash FROM Cliente c LEFT JOIN ContaCliente a ON a.id_cliente=c.id_cliente WHERE c.email=?",
     [b.email],
   );
   const c = list[0];
+  if (c?.ativo && !c.senha_hash)
+    throw new ClinicError(
+      "Encontramos seu cadastro. Confirme seus dados para criar uma senha de acesso.",
+      428,
+      "ACTIVATION_REQUIRED",
+    );
   const ok = await verifyPassword(
     b.password,
     c?.senha_hash ||
@@ -101,16 +107,41 @@ export async function customerRegister(r: Request) {
   const hash = await hashPassword(b.password);
   try {
     const id = await transaction(async (c) => {
+      const [existing] = await rows(
+        c,
+        "SELECT id_cliente,ativo FROM Cliente WHERE email=? AND cpf=? AND data_nascimento=? FOR UPDATE",
+        [b.email, b.cpf, b.data_nascimento],
+      );
+      if (existing) {
+        assert(existing.ativo, "Cadastro indisponível para acesso.", 403);
+        const [account] = await rows(
+          c,
+          "SELECT id_cliente FROM ContaCliente WHERE id_cliente=? FOR UPDATE",
+          [existing.id_cliente],
+        );
+        assert(!account, "Este cadastro já possui senha. Faça login ou recupere o acesso.", 409);
+        await exec(
+          c,
+          "INSERT INTO ContaCliente(id_cliente,senha_hash) VALUES(?,?)",
+          [existing.id_cliente, hash],
+        );
+        await exec(
+          c,
+          "INSERT INTO AuditoriaCliente(id_cliente,acao) VALUES(?,'ativacao_portal')",
+          [existing.id_cliente],
+        );
+        return Number(existing.id_cliente);
+      }
+      const [conflict] = await rows(
+        c,
+        "SELECT id_cliente FROM Cliente WHERE email=? OR cpf=? LIMIT 1 FOR UPDATE",
+        [b.email, b.cpf],
+      );
+      assert(!conflict, "Os dados não correspondem ao cadastro da clínica. Confira o e-mail, CPF e nascimento.", 409);
       const result = await exec(
         c,
         "INSERT INTO Cliente(nome_completo,cpf,data_nascimento,email,telefone) VALUES(?,?,?,?,?)",
-        [
-          b.nome_completo,
-          b.cpf,
-          b.data_nascimento,
-          b.email,
-          b.telefone ?? null,
-        ],
+        [b.nome_completo, b.cpf, b.data_nascimento, b.email, b.telefone ?? null],
       );
       await exec(
         c,
@@ -128,7 +159,7 @@ export async function customerRegister(r: Request) {
   } catch (e) {
     if ((e as { code?: string }).code === "ER_DUP_ENTRY")
       throw new ClinicError(
-        "Não foi possível criar a conta. Se já tem cadastro na clínica, use Recuperar / ativar acesso.",
+        "Não foi possível criar o acesso. Confira os dados ou use a recuperação de senha.",
         409,
       );
     throw e;
@@ -162,7 +193,7 @@ export async function customerForgot(r: Request) {
         [
           email,
           "Seu acesso à BellaPelle",
-          `${process.env.APP_ORIGIN}/portal?reset=${t}`,
+          `${process.env.APP_ORIGIN}/?reset=${t}`,
         ],
       );
     }

@@ -35,7 +35,7 @@ export const treatments: Treatment[] = [
     price: 120,
     rating: 4.9,
     reviews: 142,
-    image: "/images/facial-card.jpg",
+    image: "/images/bellapelle-facial-new.webp",
   },
   {
     id: 2,
@@ -49,7 +49,7 @@ export const treatments: Treatment[] = [
     price: 150,
     rating: 4.9,
     reviews: 98,
-    image: "/images/massagem.jpg",
+    image: "/images/bellapelle-body-new.webp",
   },
   {
     id: 3,
@@ -63,7 +63,7 @@ export const treatments: Treatment[] = [
     price: 180,
     rating: 4.9,
     reviews: 86,
-    image: "/images/depilacao.jpg",
+    image: "/images/bellapelle-body-new.webp",
   },
 ];
 export const slots = ["09:30", "11:00", "14:30", "16:00"];
@@ -82,6 +82,14 @@ export type Booking = {
   specialistName?: string;
   specialistId?: number;
   paymentStatus?: string;
+  treatmentName?: string;
+  roomName?: string;
+  endTime?: string;
+  paymentAmount?: number;
+  amountReceived?: number;
+  paymentDate?: string | null;
+  paymentMethod?: string;
+  receiptMethod?: string;
   price: number;
   duration: number;
 };

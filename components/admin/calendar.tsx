@@ -16,7 +16,33 @@ export function Calendar({
     [error, setError] = useState(""),
     [professional, setProfessional] = useState(""),
     [room, setRoom] = useState(""),
-    [procedure, setProcedure] = useState("");
+    [procedure, setProcedure] = useState(""),
+    [professionalOptions, setProfessionalOptions] = useState<Row[]>([]),
+    [roomOptions, setRoomOptions] = useState<Row[]>([]),
+    [procedureOptions, setProcedureOptions] = useState<Row[]>([]);
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      api<{ items: Row[] }>(
+        "profissionais?pageSize=100&sort=nome&direction=asc",
+      ),
+      api<{ items: Row[] }>("salas?pageSize=100&sort=nome&direction=asc"),
+      api<{ items: Row[] }>(
+        "procedimentos?pageSize=100&sort=nome&direction=asc",
+      ),
+    ])
+      .then(([professionals, rooms, procedures]) => {
+        if (active) {
+          setProfessionalOptions(professionals.items);
+          setRoomOptions(rooms.items);
+          setProcedureOptions(procedures.items);
+        }
+      })
+      .catch((e) => active && setError((e as Error).message));
+    return () => {
+      active = false;
+    };
+  }, [api]);
   const start = new Date(date + "T12:00:00Z");
   if (mode === "mes") start.setUTCDate(1);
   if (mode === "semana")
@@ -82,31 +108,49 @@ export function Calendar({
           </select>
         </label>
         <label>
-          Profissional (ID)
-          <input
-            type="number"
-            min="1"
+          Profissional
+          <select
             value={professional}
             onChange={(e) => setProfessional(e.target.value)}
-          />
+          >
+            <option value="">Todos os profissionais</option>
+            {professionalOptions.map((p) => (
+              <option
+                key={String(p.id_profissional)}
+                value={String(p.id_profissional)}
+              >
+                {String(p.nome)}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
-          Sala (ID)
-          <input
-            type="number"
-            min="1"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-          />
+          Sala
+          <select value={room} onChange={(e) => setRoom(e.target.value)}>
+            <option value="">Todas as salas</option>
+            {roomOptions.map((r) => (
+              <option key={String(r.id_sala)} value={String(r.id_sala)}>
+                {String(r.nome)}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
-          Procedimento (ID)
-          <input
-            type="number"
-            min="1"
+          Procedimento
+          <select
             value={procedure}
             onChange={(e) => setProcedure(e.target.value)}
-          />
+          >
+            <option value="">Todos os procedimentos</option>
+            {procedureOptions.map((p) => (
+              <option
+                key={String(p.id_procedimento)}
+                value={String(p.id_procedimento)}
+              >
+                {String(p.nome)}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
       {error && <p role="status">{error}</p>}
@@ -149,7 +193,13 @@ export function Calendar({
                     {String(r.procedimento_nome)} ·{" "}
                     {String(r.profissional_nome)}
                   </small>
-                  <small>{String(r.status)}</small>
+                  <small>
+                    {display(r.status, "status")} · Sala{" "}
+                    {String(r.sala_nome || "a definir")}
+                  </small>
+                  <small>
+                    Pagamento: {display(r.pagamento_status, "pagamento_status")}
+                  </small>
                 </button>
               ))}
           </div>

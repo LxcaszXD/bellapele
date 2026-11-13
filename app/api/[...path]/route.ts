@@ -100,7 +100,7 @@ async function handle(
           category: p.categoria,
           description: p.descricao ?? "",
           about: p.descricao ?? "",
-          image: p.imagem_url ?? "/images/facial-card.jpg",
+          image: p.imagem_url ?? "/images/bellapelle-hero-new.webp",
           duration: Number(p.duracao_minutos),
           price: Number(p.valor_avulso),
           rating: Number(p.rating ?? 0),

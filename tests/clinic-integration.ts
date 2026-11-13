@@ -95,6 +95,13 @@ async function main() {
       ...proc,
       percentual_comissao: "10.00",
     });
+    for (let day = 0; day < 7; day++)
+      await call("disponibilidades", "POST", {
+        ...prof,
+        dia_semana: String(day),
+        hora_inicio: "08:00:00",
+        hora_fim: "19:00:00",
+      });
     pass("cadastros e habilitação persistidos");
     await assert.rejects(
       call("clientes", "POST", {
